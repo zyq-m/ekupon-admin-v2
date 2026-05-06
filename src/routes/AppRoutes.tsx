@@ -14,9 +14,9 @@ import { TransactionPage } from "@/pages/TransactionPage"
 import { Navigate, type RouteObject } from "react-router-dom"
 
 export const AppRoutes: RouteObject[] = [
-  { path: "/login", element: <LoginPage /> },
+  { path: "/ekupon-admin/login", element: <LoginPage /> },
   {
-    path: "/",
+    path: "/ekupon-admin",
     element: <DashboardLayout />, // Sidebar layout
     children: [
       { index: true, element: <Navigate to="/dashboard" /> },

@@ -10,7 +10,7 @@ export function useLogin() {
     onSuccess: async (res) => {
       localStorage.setItem("accessToken", res.accessToken)
       localStorage.setItem("refreshToken", res.refreshToken)
-      navigate("/dashboard")
+      navigate("/ekupon-admin/dashboard")
     },
   })
 }

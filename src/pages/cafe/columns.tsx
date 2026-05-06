@@ -142,7 +142,7 @@ export const columns = ({ suspend, update }: Meta): ColumnDef<Cafe>[] => [
         <>
           <ActionDropdown>
             <DropdownMenuItem>
-              <Link to={`/cafe/${id}`}>View profile</Link>
+              <Link to={`/ekupon-admin/cafe/${id}`}>View profile</Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => setOpen(true)}>

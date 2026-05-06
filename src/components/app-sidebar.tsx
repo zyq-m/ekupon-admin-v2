@@ -20,11 +20,11 @@ import {
 import { Link, useNavigate } from "react-router-dom"
 
 const menuItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "Student", url: "/student", icon: Users },
-  { title: "Cafe", url: "/cafe", icon: Coffee },
-  { title: "Coupon", url: "/coupon", icon: Ticket },
-  { title: "Transaction", url: "/transaction", icon: CreditCard },
+  { title: "Dashboard", url: "/ekupon-admin/dashboard", icon: LayoutDashboard },
+  { title: "Student", url: "/ekupon-admin/student", icon: Users },
+  { title: "Cafe", url: "/ekupon-admin/cafe", icon: Coffee },
+  { title: "Coupon", url: "/ekupon-admin/coupon", icon: Ticket },
+  { title: "Transaction", url: "/ekupon-admin/transaction", icon: CreditCard },
 ]
 
 export function AppSidebar() {
@@ -33,7 +33,7 @@ export function AppSidebar() {
   const onLogout = () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
-    navigation("/login")
+    navigation("/ekupon-admin/login")
   }
   return (
     <Sidebar>

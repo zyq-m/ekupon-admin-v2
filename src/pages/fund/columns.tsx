@@ -99,7 +99,7 @@ export const columns: ColumnDef<Fund>[] = [
         <>
           <ActionDropdown>
             <DropdownMenuItem>
-              <Link to={`/coupon/${fund.id}`}>View Details</Link>
+              <Link to={`/ekupon-admin/coupon/${fund.id}`}>View Details</Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem onSelect={() => setOpen(true)}>

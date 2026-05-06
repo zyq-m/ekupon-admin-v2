@@ -94,7 +94,7 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
           <ActionDropdown>
             <DropdownMenuItem asChild>
               <Link
-                to={`/student/${row.original.ic_no}/${row.original.coupons[0].fund_id}`}
+                to={`/ekupon-admin/student/${row.original.ic_no}/${row.original.coupons[0].fund_id}`}
               >
                 View
               </Link>
