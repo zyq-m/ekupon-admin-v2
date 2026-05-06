@@ -1,0 +1,58 @@
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox"
+import { useGetFunds } from "@/hooks/use-fund"
+import { useEffect, useState } from "react"
+
+export function SelectFunds({
+  onValueChange,
+}: {
+  onValueChange: (id: number) => void
+}) {
+  const { data } = useGetFunds()
+  const [value, setValue] = useState<string | null>("")
+
+  useEffect(() => {
+    if (data && data.length > 0 && !value) {
+      const firstFund = data[0]
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setValue(firstFund.name)
+      onValueChange(firstFund.id)
+    }
+  }, [data, value, onValueChange])
+
+  const handleSelect = (selectedName: string | null) => {
+    // Find the ID corresponding to the selected name
+    const selectedFund = data?.find((fund) => fund.name === selectedName)
+    if (selectedFund) {
+      setValue(selectedName)
+      onValueChange(selectedFund.id) // Send ID to parent
+    }
+  }
+
+  return (
+    <Combobox
+      value={value}
+      onValueChange={handleSelect}
+      items={data}
+      itemToStringValue={(fund) => fund.name}
+    >
+      <ComboboxInput placeholder="Select a fund" />
+      <ComboboxContent>
+        <ComboboxEmpty>No items found.</ComboboxEmpty>
+        <ComboboxList>
+          {(fund) => (
+            <ComboboxItem key={fund.id} value={fund.name}>
+              {fund.name}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
