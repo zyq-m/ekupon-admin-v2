@@ -63,7 +63,7 @@ export function TransactionPage() {
     const y = 10
 
     // Add UNISZA logo (from public/)
-    const imgPath = "/unisza.png"
+    const imgPath = "/ekupon-admin/unisza.png"
     const img = new Image()
     img.onload = () => {
       doc.addImage(imgPath, "PNG", x, y, imgWidth, imgHeight)

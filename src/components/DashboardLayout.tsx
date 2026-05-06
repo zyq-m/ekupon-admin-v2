@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { Outlet, useLocation } from "react-router-dom"
+import { Navigate, Outlet, useLocation } from "react-router-dom"
 import { ModeToggle } from "./mode-toggle"
 
 // Map paths to titles
@@ -22,8 +22,9 @@ export function DashboardLayout() {
   const location = useLocation()
   // Get the title or default to 'Dashboard'
   const currentTitle = titleMap[location.pathname] || "Dashboard"
+  const isAuthenticated = !!localStorage.getItem("accessToken")
 
-  return (
+  return isAuthenticated ? (
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
@@ -45,5 +46,7 @@ export function DashboardLayout() {
         </main>
       </SidebarInset>
     </SidebarProvider>
+  ) : (
+    <Navigate to="/ekupon-admin/login" replace />
   )
 }

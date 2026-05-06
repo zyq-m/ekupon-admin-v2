@@ -19,7 +19,7 @@ export const AppRoutes: RouteObject[] = [
     path: "/ekupon-admin",
     element: <DashboardLayout />, // Sidebar layout
     children: [
-      { index: true, element: <Navigate to="/dashboard" /> },
+      { index: true, element: <Navigate to="/ekupon-admin/dashboard" /> },
       { path: "dashboard", element: <DashboardPage /> },
       {
         path: "student",
