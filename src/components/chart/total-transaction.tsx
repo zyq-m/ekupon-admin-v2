@@ -26,11 +26,11 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
 const chartConfig = {
   count: {
     label: "Transaction",
-    color: "#fff085", // very light yellow (yellow‑100)
+    color: "#fbbf24", // accent yellow (yellow‑500)
   },
   total_amount: {
     label: "Amount",
-    color: "#fbbf24", // accent yellow (yellow‑500)
+    color: "#fff085", // very light yellow (yellow‑100)
   },
 } satisfies ChartConfig
 
@@ -82,26 +82,32 @@ export function TotalTransaction() {
               minTickGap={32}
               tickFormatter={(v) => dayjs(v).format("DD MMM")}
             />
+
             <ChartTooltip
               cursor={false}
-              content={<ChartTooltipContent hideLabel />}
+              content={
+                <ChartTooltipContent
+                  indicator="line"
+                  labelFormatter={(value) => dayjs(value).format("D MMM")}
+                />
+              }
             />
 
-            <Area
-              dataKey="count"
-              type="natural"
-              fill="var(--color-count)"
-              fillOpacity={0.4}
-              stroke="var(--color-count)"
-              strokeWidth={2}
-              dot={false}
-            />
             <Area
               dataKey="total_amount"
               type="natural"
               fill="var(--color-total_amount)"
               fillOpacity={0.4}
               stroke="var(--color-total_amount)"
+              strokeWidth={2}
+              dot={false}
+            />
+            <Area
+              dataKey="count"
+              type="natural"
+              fill="var(--color-count)"
+              fillOpacity={0.4}
+              stroke="var(--color-count)"
               strokeWidth={2}
               dot={false}
             />
