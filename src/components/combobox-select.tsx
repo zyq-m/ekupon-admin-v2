@@ -42,12 +42,7 @@ export function ComboboxSelect<T extends ComboboxItemData>({
   if (!items || items.length === 0) return null
 
   return (
-    <Combobox
-      value={value}
-      onValueChange={handleSelect}
-      items={items}
-      itemToStringValue={(item) => item.name}
-    >
+    <Combobox value={value} onValueChange={handleSelect} items={items}>
       <ComboboxInput placeholder="Select an option" />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>

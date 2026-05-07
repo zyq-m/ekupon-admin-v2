@@ -64,7 +64,7 @@ export function useBulkUpsert() {
       )
       queryClient.invalidateQueries({ queryKey: ["students"] })
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError<{ message: string }>) => {
       const apiErr = error.response?.data
       toast.error(apiErr?.message)
     },

@@ -27,12 +27,7 @@ export function SelectFunds({
   }
 
   return (
-    <Combobox
-      value={value}
-      onValueChange={handleSelect}
-      items={data}
-      itemToStringValue={(fund) => fund.name}
-    >
+    <Combobox value={value} onValueChange={handleSelect} items={data}>
       <ComboboxInput placeholder="Select a fund" />
       <ComboboxContent>
         <ComboboxEmpty>No items found.</ComboboxEmpty>
