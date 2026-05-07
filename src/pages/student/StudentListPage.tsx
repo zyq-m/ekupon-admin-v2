@@ -12,6 +12,7 @@ import { useGetFundById } from "@/hooks/use-fund"
 import { useGetStudents } from "@/hooks/use-student"
 import { Plus } from "lucide-react"
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { columns } from "./columns"
 
 export function StudentListPage() {
@@ -35,8 +36,10 @@ export function StudentListPage() {
           <SelectFunds onValueChange={setId} />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button>
-                <Plus />
+              <Button asChild>
+                <Link to="/ekupon-admin/student/import">
+                  <Plus />
+                </Link>
               </Button>
             </TooltipTrigger>
             <TooltipContent>

@@ -7,7 +7,7 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import { useGetFunds } from "@/hooks/use-fund"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 
 export function SelectFunds({
   onValueChange,
@@ -16,15 +16,6 @@ export function SelectFunds({
 }) {
   const { data } = useGetFunds()
   const [value, setValue] = useState<string | null>("")
-
-  useEffect(() => {
-    if (data && data.length > 0 && !value) {
-      const firstFund = data[0]
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setValue(firstFund.name)
-      onValueChange(firstFund.id)
-    }
-  }, [data, value, onValueChange])
 
   const handleSelect = (selectedName: string | null) => {
     // Find the ID corresponding to the selected name

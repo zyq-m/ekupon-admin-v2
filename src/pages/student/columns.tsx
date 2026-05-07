@@ -1,7 +1,9 @@
-import type { Student } from "@/api/student"
+/* eslint-disable react-hooks/rules-of-hooks */
+import type { Student, StudentUploadComparison, TStudent } from "@/api/student"
 import type { TfComplete } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
 import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
+import { StudentConflictDialog } from "@/components/form/student-form"
 import { SortableHeader } from "@/components/sortable-header"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -10,6 +12,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { useSuspendUser } from "@/hooks/use-auth"
+import { useUpdateStudent } from "@/hooks/use-student"
 import { cn, formatDate, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 import dayjs from "dayjs"
@@ -19,6 +22,110 @@ import { Link } from "react-router-dom"
 type Meta = {
   suspend: ReturnType<typeof useSuspendUser>
 }
+
+type ColumnProps = {
+  updateStudentData: (
+    rowIndex: number,
+    data: StudentUploadComparison["uploaded"]
+  ) => void
+  deleteStudent: (rowIndex: number) => void
+}
+
+export const comparisonCol = (
+  updateStudentData: ColumnProps["updateStudentData"],
+  deleteStudent: ColumnProps["deleteStudent"],
+  update: ReturnType<typeof useUpdateStudent>
+): ColumnDef<StudentUploadComparison>[] => [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    id: "name",
+    accessorFn: ({ uploaded }) => uploaded.name,
+    header: "Name",
+    cell: ({ row }) => row.original.uploaded.name,
+  },
+  {
+    id: "ic_no",
+    header: "IC No.",
+    cell: ({ row }) => row.original.uploaded.ic_no,
+  },
+
+  {
+    id: "matric_no",
+    header: "Matric No.",
+    cell: ({ row }) => row.original.uploaded.matric_no,
+  },
+  {
+    accessorKey: "differences",
+    header: ({ column }) => <SortableHeader column={column} title="Status" />,
+    cell: ({ row }) => {
+      const diff = row.original.differences
+      const conflict = row.original.conflict
+
+      return (
+        <Badge variant={conflict ? "destructive" : "secondary"}>
+          {conflict ? `${diff.length} conflict` : "Perfect"}
+        </Badge>
+      )
+    },
+  },
+  {
+    id: "action",
+    cell: ({ row }) => {
+      const student = row.original
+      const [open, setOpen] = useState(false)
+
+      return (
+        <>
+          <ActionDropdown>
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => deleteStudent(row.index)}
+              className="text-destructive"
+            >
+              Delete
+            </DropdownMenuItem>
+          </ActionDropdown>
+
+          <StudentConflictDialog
+            isOpen={open}
+            setIsOpen={setOpen}
+            student={student}
+            onSave={(updated) => {
+              update.mutate(updated, {
+                onSuccess: () => {
+                  updateStudentData(row.index, updated)
+                },
+              })
+            }}
+          />
+        </>
+      )
+    },
+  },
+]
 
 export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
   {
@@ -79,7 +186,7 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
       const isActive = row.original.user.is_active
       const coupon = row.original.coupons[0]
       const student = row.original
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+
       const [open, setOpen] = useState(false)
 
       const onSuspend = () => {
@@ -123,6 +230,89 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
               balance: coupon.balance,
             }}
           />
+        </>
+      )
+    },
+  },
+]
+
+export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "name",
+    header: ({ column }) => <SortableHeader column={column} title="Name" />,
+  },
+  { accessorKey: "matric_no", header: "Matric No." },
+  { accessorKey: "ic_no", header: "IC No." },
+  {
+    accessorKey: "user.is_active",
+    header: "Status",
+    cell: ({ row }) => {
+      const isActive = row.original.user.is_active
+      return (
+        <Badge
+          className={cn(
+            isActive
+              ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
+              : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+          )}
+        >
+          {isActive ? "Active" : "Suspended"}
+        </Badge>
+      )
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const isActive = row.original.user.is_active
+
+      const onSuspend = () => {
+        suspend.mutate({
+          id: row.original.user_id,
+          active: !isActive,
+        })
+      }
+
+      return (
+        <>
+          <ActionDropdown>
+            <DropdownMenuItem asChild>
+              <Link to={`/ekupon-admin/student/${row.original.ic_no}`}>
+                View
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              variant={isActive ? "destructive" : "default"}
+              onClick={onSuspend}
+            >
+              {isActive ? "Suspend" : "Activate"}
+            </DropdownMenuItem>
+          </ActionDropdown>
         </>
       )
     },

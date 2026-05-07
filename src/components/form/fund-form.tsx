@@ -10,7 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { type ReactNode } from "react"
+import { useState, type ReactNode } from "react"
 
 export default function FundFormDialog({
   children,
@@ -58,10 +58,13 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useCreateFund } from "@/hooks/use-fund"
 import { zodResolver } from "@hookform/resolvers/zod"
 import dayjs from "dayjs"
+import { Plus } from "lucide-react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
 
 type Form = {
   children?: ReactNode
@@ -227,5 +230,41 @@ export function FundForm({ children, data, onSubmit }: Form) {
         </>
       )}
     </form>
+  )
+}
+
+export function FundFormTriggerBtn() {
+  const [open, setOpen] = useState(false)
+
+  const create = useCreateFund()
+
+  const onFormSubmit = (input: FundInput) => {
+    create.mutate(input, {
+      onSuccess: () => {
+        setOpen(false)
+      },
+    })
+  }
+
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button onClick={() => setOpen(true)}>
+            <Plus />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Create new fund</p>
+        </TooltipContent>
+      </Tooltip>
+      <FundFormDialog
+        title="Create new fund"
+        desc="Fill all the form"
+        isOpen={open}
+        setOpen={setOpen}
+        onSubmit={onFormSubmit}
+      />
+    </>
   )
 }

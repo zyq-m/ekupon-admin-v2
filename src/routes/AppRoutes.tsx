@@ -7,7 +7,9 @@ import { CouponListPage } from "@/pages/coupon/CouponList"
 import { ViewCouponPage } from "@/pages/coupon/ViewCouponPage"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { LoginPage } from "@/pages/LoginPage"
+import { NotFound } from "@/pages/NotFound"
 import { StudentPage } from "@/pages/student"
+import { ImportStudent } from "@/pages/student/ImportStudent"
 import { StudentListPage } from "@/pages/student/StudentListPage"
 import ViewTfStudentPage from "@/pages/student/ViewTfPage"
 import { TransactionPage } from "@/pages/TransactionPage"
@@ -26,6 +28,7 @@ export const AppRoutes: RouteObject[] = [
         element: <StudentPage />,
         children: [
           { path: "", element: <StudentListPage /> },
+          { path: "import", element: <ImportStudent /> },
           { path: ":icNo/:fundId", element: <ViewTfStudentPage /> },
         ],
       },
@@ -48,4 +51,5 @@ export const AppRoutes: RouteObject[] = [
       },
     ],
   },
+  { path: "*", element: <NotFound /> },
 ]
