@@ -56,7 +56,6 @@ export default function DataTable<TData, TValue>({
   colName,
   placeholder = "",
   children,
-  selectionActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
