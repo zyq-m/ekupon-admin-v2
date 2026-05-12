@@ -49,7 +49,7 @@ const responseInterceptor = async (error: AxiosError) => {
       // Clear tokens and handle logout
       localStorage.removeItem("accessToken")
       localStorage.removeItem("refreshToken")
-      window.location.href = "/login" // Redirect to login
+      window.location.href = "/ekupon-admin/login" // Redirect to login
       return Promise.reject(refreshError)
     }
   }
