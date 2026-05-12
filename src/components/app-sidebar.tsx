@@ -1,4 +1,9 @@
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -7,34 +12,67 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import type { LucideIcon } from "lucide-react"
 import {
+  ChevronRight,
   Coffee,
   CreditCard,
+  GraduationCap,
   LayoutDashboard,
   LogOut,
   Ticket,
   User2,
-  Users,
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 
-const menuItems = [
-  { title: "Dashboard", url: "/ekupon-admin/dashboard", icon: LayoutDashboard },
-  { title: "Student", url: "/ekupon-admin/student", icon: Users },
-  { title: "Cafe", url: "/ekupon-admin/cafe", icon: Coffee },
-  { title: "Coupon", url: "/ekupon-admin/coupon", icon: Ticket },
-  { title: "Transaction", url: "/ekupon-admin/transaction", icon: CreditCard },
+type MenuItem = {
+  title: string
+  icon: LucideIcon
+  url?: string
+  children: { title: string; url: string }[]
+}
+
+const menuItems: MenuItem[] = [
+  {
+    title: "Dashboard",
+    icon: LayoutDashboard,
+    url: "/ekupon-admin/dashboard",
+    children: [],
+  },
+  {
+    title: "Student",
+    icon: GraduationCap,
+    children: [
+      { title: "Search Student", url: "/ekupon-admin/student" },
+      { title: "Import Student", url: "/ekupon-admin/student/import" },
+    ],
+  },
+  { title: "Cafe", icon: Coffee, url: "/ekupon-admin/cafe", children: [] },
+  { title: "Coupon", icon: Ticket, url: "/ekupon-admin/coupon", children: [] },
+  {
+    title: "Transaction",
+    icon: CreditCard,
+    url: "/ekupon-admin/transaction",
+    children: [],
+  },
 ]
 
 export function AppSidebar() {
   const navigation = useNavigate()
+  const currentPath = window.location.pathname
 
   const onLogout = () => {
     localStorage.removeItem("accessToken")
     localStorage.removeItem("refreshToken")
     navigation("/ekupon-admin/login")
   }
+
+  const basePath = "/ekupon-admin"
+
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-4">
@@ -49,21 +87,52 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarMenu>
             {menuItems.map((item) => {
-              // Check if the current route matches the item URL
-              const isActive = location.pathname.startsWith(item.url)
+              if (item.children.length === 0) {
+                return (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      size="lg"
+                      isActive={currentPath.startsWith(item.url!)}
+                    >
+                      <Link to={item.url!}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                )
+              }
+
+              const parentUrl = `${basePath}/${item.title.toLowerCase()}`
 
               return (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    size="lg"
-                    isActive={isActive} // Shadcn sidebar supports this prop
+                  <Collapsible
+                    defaultOpen={currentPath.startsWith(parentUrl)}
+                    className="group/collapsible"
                   >
-                    <Link to={item.url}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton
+                        isActive={currentPath.startsWith(parentUrl)}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {item.children.map((child) => (
+                          <SidebarMenuSubItem key={child.url}>
+                            <SidebarMenuSubButton asChild>
+                              <Link to={child.url}>{child.title}</Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </Collapsible>
                 </SidebarMenuItem>
               )
             })}
@@ -73,7 +142,7 @@ export function AppSidebar() {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenu>
-            <SidebarMenuButton size="lg" onClick={onLogout}>
+            <SidebarMenuButton onClick={onLogout}>
               <LogOut /> Log out
             </SidebarMenuButton>
           </SidebarMenu>

@@ -46,23 +46,26 @@ export function ImportStudent() {
   const bulkUploadXlsx = useBulkUploadXlsx()
   const update = useUpdateStudent()
 
-  const processFile = useCallback((f: File) => {
-    if (!f.name.endsWith(".xlsx")) {
-      alert("Please upload a .xlsx file only.")
-      return
-    }
+  const processFile = useCallback(
+    (f: File) => {
+      if (!f.name.endsWith(".xlsx")) {
+        alert("Please upload a .xlsx file only.")
+        return
+      }
 
-    setFile(f)
-    const formData = new FormData()
-    formData.append("file", f)
-    formData.append("sheet", "0")
+      setFile(f)
+      const formData = new FormData()
+      formData.append("file", f)
+      formData.append("sheet", "0")
 
-    checkUpload.mutate(formData, {
-      onSuccess: (res) => {
-        setTableData(res.students)
-      },
-    })
-  }, [checkUpload])
+      checkUpload.mutate(formData, {
+        onSuccess: (res) => {
+          setTableData(res.students)
+        },
+      })
+    },
+    [checkUpload]
+  )
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] ?? null
@@ -211,7 +214,9 @@ export function ImportStudent() {
           {checkUpload.isPending ? (
             <div className="flex flex-col items-center gap-2">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-              <span className="text-sm text-muted-foreground">Checking file...</span>
+              <span className="text-sm text-muted-foreground">
+                Checking file...
+              </span>
             </div>
           ) : file ? (
             <div className="flex flex-col items-center gap-2">
@@ -224,7 +229,9 @@ export function ImportStudent() {
           ) : isDragOver ? (
             <div className="flex flex-col items-center gap-2">
               <Upload className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-primary">Drop your file here</span>
+              <span className="text-sm font-medium text-primary">
+                Drop your file here
+              </span>
             </div>
           ) : (
             <div className="flex flex-col items-center gap-2">
@@ -244,7 +251,14 @@ export function ImportStudent() {
         </label>
         {file && (
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" onClick={() => { setFile(null); setTableData([]); }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setFile(null)
+                setTableData([])
+              }}
+            >
               Remove file
             </Button>
           </div>
@@ -282,7 +296,13 @@ export function ImportStudent() {
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button disabled={!fundId || bulkUploadXlsx.isPending || conflictedData.length > 0}>
+                    <Button
+                      disabled={
+                        !fundId ||
+                        bulkUploadXlsx.isPending ||
+                        conflictedData.length > 0
+                      }
+                    >
                       {bulkUploadXlsx.isPending ? "Uploading.." : "Upload"}
                     </Button>
                   </AlertDialogTrigger>
@@ -316,7 +336,7 @@ export function ImportStudent() {
           </Tabs>
         </div>
       )}
-      <StudentSearchDialog onSearch={() => {}} />
+      <StudentSearchDialog />
     </div>
   )
 }

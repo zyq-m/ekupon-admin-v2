@@ -1,17 +1,15 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { InputStudent, Student, StudentUploadComparison, TStudent } from "@/api/student"
+import type { Student, StudentUploadComparison, TStudent } from "@/api/student"
 import type { TfComplete } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
 import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
-import { StudentConflictDialog } from "@/components/form/student-form"
+import { EditForm, StudentConflictDialog } from "@/components/form/student-form"
 import { SortableHeader } from "@/components/sortable-header"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
@@ -19,21 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import {
-  Field,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useUpdateStudent } from "@/hooks/use-student"
 import { cn, formatDate, formatRM } from "@/lib/utils"
-import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 import dayjs from "dayjs"
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "sonner"
 
 type Meta = {
   suspend: ReturnType<typeof useSuspendUser>
@@ -279,7 +270,7 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
   { accessorKey: "ic_no", header: "IC No." },
   {
     accessorKey: "user.is_active",
-    header: "Status",
+    header: ({ column }) => <SortableHeader column={column} title="Status" />,
     cell: ({ row }) => {
       const isActive = row.original.user.is_active
       return (
@@ -294,6 +285,10 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
         </Badge>
       )
     },
+  },
+  {
+    accessorKey: "_count.coupons",
+    header: ({ column }) => <SortableHeader column={column} title="Coupons" />,
   },
   {
     id: "actions",
@@ -313,13 +308,13 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
       return (
         <>
           <ActionDropdown>
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to={`/ekupon-admin/student/${row.original.ic_no}`}>
-                View
+                View details
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              Edit info
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -429,54 +424,3 @@ export const studentCouponCol: ColumnDef<Student["coupons"][0]>[] = [
     cell: ({ row }) => <div>{formatDate(row.original.fund.expired)}</div>,
   },
 ]
-
-function EditForm({
-  student,
-  onSave,
-}: {
-  student: TStudent
-  onSave: (data: InputStudent) => void
-}) {
-  const [name, setName] = useState(student.name)
-  const [icNo, setIcNo] = useState(student.ic_no)
-  const [matricNo, setMatricNo] = useState(student.matric_no)
-
-  return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        onSave({ name, ic_no: icNo, matric_no: matricNo })
-      }}
-    >
-      <FieldGroup>
-        <Field>
-          <FieldLabel htmlFor="edit-name">Name</FieldLabel>
-          <Input
-            id="edit-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="edit-ic">IC No.</FieldLabel>
-          <Input
-            id="edit-ic"
-            value={icNo}
-            onChange={(e) => setIcNo(e.target.value)}
-          />
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="edit-matric">Matric No.</FieldLabel>
-          <Input
-            id="edit-matric"
-            value={matricNo}
-            onChange={(e) => setMatricNo(e.target.value)}
-          />
-        </Field>
-      </FieldGroup>
-      <DialogFooter className="mt-4">
-        <Button type="submit">Save Changes</Button>
-      </DialogFooter>
-    </form>
-  )
-}

@@ -83,7 +83,7 @@ export const useStudentSearch = ({
   return useQuery({
     queryKey: ["students", "search", { searchTerm, searchBy }],
     queryFn: () => studentAPI.searchStudents({ [searchBy!]: searchTerm! }),
-    enabled: !!searchTerm && !!searchBy,
+    // enabled: !!searchTerm && !!searchBy,
     staleTime: 300_000, // 5min
     retry: 1,
     placeholderData: [], // Empty array while loading

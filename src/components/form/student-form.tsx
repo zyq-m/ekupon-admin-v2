@@ -1,4 +1,8 @@
-import type { StudentUploadComparison, TStudent } from "@/api/student"
+import type {
+  InputStudent,
+  StudentUploadComparison,
+  TStudent,
+} from "@/api/student"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import {
@@ -19,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Search } from "lucide-react"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { z } from "zod"
 
@@ -216,11 +220,37 @@ import {
 } from "../ui/input-group"
 import { Separator } from "../ui/separator"
 
-export function StudentSearchDialog({
-  onSearch,
-}: {
-  onSearch: (results: TStudent[]) => void
-}) {
+export function StudentSearchDialog() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon-lg"
+          className="fixed right-6 bottom-6 z-40 border-2 shadow-lg hover:shadow-xl"
+        >
+          <CircleQuestionMark className="h-5 w-5" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        className="md:max-w-1/2"
+        // onCloseAutoFocus={() => form.reset()}
+        aria-describedby={undefined}
+      >
+        <DialogHeader className="p-1">
+          <DialogTitle>Search Students</DialogTitle>
+        </DialogHeader>
+        <Separator />
+        {/* Search form */}
+        <div className="no-scrollbar max-h-[50vh] overflow-y-auto p-1">
+          <SearchStudentForm />
+        </div>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+export function SearchStudentForm() {
   const form = useForm<{
     searchTerm: string
     searchBy: "name" | "matric_no" | "ic_no"
@@ -244,30 +274,11 @@ export function StudentSearchDialog({
   // ✅ Fixed: form.handleSubmit()
   const handleSubmit = form.handleSubmit(() => {
     search.refetch()
-    onSearch(search.data || [])
   })
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon-lg"
-          className="fixed right-6 bottom-6 z-40 border-2 shadow-lg hover:shadow-xl"
-        >
-          <CircleQuestionMark className="h-5 w-5" />
-        </Button>
-      </DialogTrigger>
-      <DialogContent
-        className="md:max-w-1/2"
-        onCloseAutoFocus={() => form.reset()}
-        aria-describedby={undefined}
-      >
-        <DialogHeader>
-          <DialogTitle>Search Students</DialogTitle>
-        </DialogHeader>
-        <Separator />
-        {/* Search form */}
+    <div className="space-y-4">
+      <div className="sticky top-0 z-10 bg-background pb-2">
         <form
           id="student-search"
           onSubmit={handleSubmit} // Fixed!
@@ -285,7 +296,7 @@ export function StudentSearchDialog({
                     <InputGroupInput
                       {...field}
                       id="student-search-term"
-                      placeholder="Search for student"
+                      placeholder="Name, Matric No, IC No"
                     />
                     <InputGroupAddon align="inline-end">
                       <Controller
@@ -321,13 +332,59 @@ export function StudentSearchDialog({
             />
           </FieldGroup>
         </form>
-        <div className="no-scrollbar max-h-[50vh] overflow-y-auto">
-          <DataTable
-            columns={columnSimple({ suspend })}
-            data={search.data || []}
+      </div>
+      <DataTable columns={columnSimple({ suspend })} data={search.data || []} />
+    </div>
+  )
+}
+
+export function EditForm({
+  student,
+  onSave,
+}: {
+  student: TStudent
+  onSave: (data: InputStudent) => void
+}) {
+  const [name, setName] = useState(student.name)
+  const [icNo, setIcNo] = useState(student.ic_no)
+  const [matricNo, setMatricNo] = useState(student.matric_no)
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave({ name, ic_no: icNo, matric_no: matricNo })
+      }}
+    >
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="edit-name">Name</FieldLabel>
+          <Input
+            id="edit-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
           />
-        </div>
-      </DialogContent>
-    </Dialog>
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-ic">IC No.</FieldLabel>
+          <Input
+            id="edit-ic"
+            value={icNo}
+            onChange={(e) => setIcNo(e.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-matric">Matric No.</FieldLabel>
+          <Input
+            id="edit-matric"
+            value={matricNo}
+            onChange={(e) => setMatricNo(e.target.value)}
+          />
+        </Field>
+      </FieldGroup>
+      <DialogFooter className="mt-4">
+        <Button type="submit">Save Changes</Button>
+      </DialogFooter>
+    </form>
   )
 }

@@ -98,6 +98,9 @@ export type TStudent = {
   user_id: number
   matric_no: string
   name: string
+  _count: {
+    coupons: number
+  }
 }
 
 export interface StudentUploadComparison {
