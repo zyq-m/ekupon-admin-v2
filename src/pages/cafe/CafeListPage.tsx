@@ -41,7 +41,7 @@ export function CafeListPage() {
         <CafeFormDialog
           onSubmit={() => {}}
           title="Create new cafe"
-          desc="Fill all the required fieldState"
+          desc="Fill in the cafe details below"
           isOpen={open}
           setOpen={setOpen}
         />

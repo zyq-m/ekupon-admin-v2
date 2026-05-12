@@ -114,6 +114,7 @@ export function AppSidebar() {
                   >
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
+                        size="lg"
                         isActive={currentPath.startsWith(parentUrl)}
                       >
                         <item.icon className="h-4 w-4" />

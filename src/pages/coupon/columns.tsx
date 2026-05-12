@@ -118,12 +118,12 @@ export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
           <ActionDropdown>
             <DropdownMenuItem asChild>
               <Link to={`/ekupon-admin/student/${coupon.student?.ic_no}`}>
-                View Student
+                View
               </Link>
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit balance
+              Edit
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

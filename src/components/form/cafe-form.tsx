@@ -54,14 +54,17 @@ export function CafeFormDialog({
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{desc}</DialogDescription>
         </DialogHeader>
-        <CafeForm data={cafe} onSubmit={onSubmit}>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button type="submit">Save</Button>
-          </DialogFooter>
-        </CafeForm>
+        <div className="-mx-4 max-h-[50vh] overflow-y-auto px-4">
+          <CafeForm data={cafe} onSubmit={onSubmit}></CafeForm>
+        </div>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button type="submit" form="cafe-form">
+            Save
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
@@ -86,12 +89,11 @@ type CafeFormValues = z.infer<typeof cafeFormSchema>
 // ========== Standalone CafeForm ==========
 
 type FormProps = {
-  children?: ReactNode
   data?: Cafe
   onSubmit: (cafe: UpdateCafeInput) => void
 }
 
-export function CafeForm({ children, data, onSubmit }: FormProps) {
+export function CafeForm({ data, onSubmit }: FormProps) {
   const form = useForm<CafeFormValues>({
     resolver: zodResolver(cafeFormSchema),
     defaultValues: data
@@ -114,7 +116,11 @@ export function CafeForm({ children, data, onSubmit }: FormProps) {
   })
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      id="cafe-form"
+      onSubmit={form.handleSubmit(onSubmit)}
+      className="space-y-6"
+    >
       <FieldGroup>
         <Controller
           name="cafe_name"
@@ -281,17 +287,6 @@ export function CafeForm({ children, data, onSubmit }: FormProps) {
           />
         </div>
       </FieldGroup>
-
-      {children ?? (
-        <Field orientation="horizontal">
-          <>
-            <Button type="submit">Submit</Button>
-            <Button type="reset" variant="outline">
-              Cancel
-            </Button>
-          </>
-        </Field>
-      )}
     </form>
   )
 }

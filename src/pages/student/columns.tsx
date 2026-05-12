@@ -211,7 +211,7 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit balance
+              Edit
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -310,11 +310,11 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
           <ActionDropdown>
             <DropdownMenuItem asChild>
               <Link to={`/ekupon-admin/student/${row.original.ic_no}`}>
-                View details
+                View
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit info
+              Edit
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

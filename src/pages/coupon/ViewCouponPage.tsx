@@ -61,7 +61,7 @@ export function ViewCouponPage() {
           columns={columns({ suspend })}
           data={data?.coupons || []}
           colName="name"
-          placeholder="Search for Student Name"
+          placeholder="Name"
         >
           <div className="flex gap-2">
             <SelectFunds value={data?.name} onValueChange={setFundId} />
