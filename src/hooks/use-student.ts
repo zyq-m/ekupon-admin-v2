@@ -1,7 +1,6 @@
 import {
   studentAPI,
   type InputStudent,
-  type StudentUploadComparison,
   type UpdateBalanceBody,
   type UpdateStudentError,
 } from "@/api/student"
@@ -47,65 +46,15 @@ export function useCheckStudentUpload() {
   })
 }
 
-export function useBulkUpsert() {
+export function useBulkUploadXlsx() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({
-      students,
-      fundId,
-    }: {
-      students: StudentUploadComparison[]
-      fundId: number
-    }) => {
-      // ✅ CHUNK: Split large arrays (frontend handles size)
-      const CHUNK_SIZE = 50
-      const chunks = []
-
-      for (let i = 0; i < students.length; i += CHUNK_SIZE) {
-        chunks.push(students.slice(i, i + CHUNK_SIZE))
-      }
-
-      // ✅ Sequential upload → Use YOUR current backend
-      let totalCreated = 0
-      let totalUpdated = 0
-      let totalSkipped = 0
-
-      for (let i = 0; i < chunks.length; i++) {
-        const result = await studentAPI.bulkUpsert({
-          students: chunks[i], // ✅ Small chunks!
-          fundId,
-        })
-
-        totalCreated += result.created || 0
-        totalUpdated += result.updated || 0
-        totalSkipped += result.skipped || 0
-
-        // Progress toast
-        toast.loading(
-          `Uploading ${chunks[i].length} students... (${i + 1}/${chunks.length})`,
-          {
-            id: `chunk-${i}`,
-          }
-        )
-      }
-
-      return {
-        created: totalCreated,
-        updated: totalUpdated,
-        skipped: totalSkipped,
-        chunks: chunks.length,
-      }
-    },
-    onSuccess: (result) => {
-      toast.dismiss()
-      toast.success(
-        `✅ ${result.created} created, ${result.updated} updated, ${result.skipped} skipped!`
-      )
+    mutationFn: (formData: FormData) => studentAPI.bulkUploadXlsx(formData),
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["students"] })
     },
     onError: (error: AxiosError<{ message: string }>) => {
-      toast.dismiss()
       const apiErr = error.response?.data
       toast.error(apiErr?.message || "Upload failed")
     },

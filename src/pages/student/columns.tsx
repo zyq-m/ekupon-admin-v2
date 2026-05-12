@@ -1,19 +1,35 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { Student, StudentUploadComparison, TStudent } from "@/api/student"
+import type { InputStudent, Student, StudentUploadComparison, TStudent } from "@/api/student"
 import type { TfComplete } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
 import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
 import { StudentConflictDialog } from "@/components/form/student-form"
 import { SortableHeader } from "@/components/sortable-header"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useUpdateStudent } from "@/hooks/use-student"
 import { cn, formatDate, formatRM } from "@/lib/utils"
+import { toast } from "sonner"
 import type { ColumnDef } from "@tanstack/react-table"
 import dayjs from "dayjs"
 import { useState } from "react"
@@ -25,16 +41,15 @@ type Meta = {
 
 type ColumnProps = {
   updateStudentData: (
-    rowIndex: number,
+    student: StudentUploadComparison,
     data: StudentUploadComparison["uploaded"]
   ) => void
-  deleteStudent: (rowIndex: number) => void
+  deleteStudent: (student: StudentUploadComparison) => void
 }
 
 export const comparisonCol = (
   updateStudentData: ColumnProps["updateStudentData"],
-  deleteStudent: ColumnProps["deleteStudent"],
-  update: ReturnType<typeof useUpdateStudent>
+  deleteStudent: ColumnProps["deleteStudent"]
 ): ColumnDef<StudentUploadComparison>[] => [
   {
     id: "select",
@@ -102,7 +117,7 @@ export const comparisonCol = (
               Edit
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => deleteStudent(row.index)}
+              onClick={() => deleteStudent(row.original)}
               className="text-destructive"
             >
               Delete
@@ -114,11 +129,8 @@ export const comparisonCol = (
             setIsOpen={setOpen}
             student={student}
             onSave={(updated) => {
-              update.mutate(updated, {
-                onSuccess: () => {
-                  updateStudentData(row.index, updated)
-                },
-              })
+              updateStudentData(row.original, updated)
+              toast.success("Student updated")
             }}
           />
         </>
@@ -287,6 +299,9 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
     id: "actions",
     cell: ({ row }) => {
       const isActive = row.original.user.is_active
+      const student = row.original
+      const [open, setOpen] = useState(false)
+      const update = useUpdateStudent()
 
       const onSuspend = () => {
         suspend.mutate({
@@ -298,6 +313,9 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
       return (
         <>
           <ActionDropdown>
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              Edit
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to={`/ekupon-admin/student/${row.original.ic_no}`}>
                 View
@@ -313,6 +331,28 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
               {isActive ? "Suspend" : "Activate"}
             </DropdownMenuItem>
           </ActionDropdown>
+
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>Edit Student</DialogTitle>
+              </DialogHeader>
+              <EditForm
+                student={student}
+                onSave={(updated) => {
+                  update.mutate(updated, {
+                    onSuccess: () => {
+                      toast.success("Student updated")
+                      setOpen(false)
+                    },
+                    onError: () => {
+                      toast.error("Failed to update student")
+                    },
+                  })
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </>
       )
     },
@@ -389,3 +429,54 @@ export const studentCouponCol: ColumnDef<Student["coupons"][0]>[] = [
     cell: ({ row }) => <div>{formatDate(row.original.fund.expired)}</div>,
   },
 ]
+
+function EditForm({
+  student,
+  onSave,
+}: {
+  student: TStudent
+  onSave: (data: InputStudent) => void
+}) {
+  const [name, setName] = useState(student.name)
+  const [icNo, setIcNo] = useState(student.ic_no)
+  const [matricNo, setMatricNo] = useState(student.matric_no)
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSave({ name, ic_no: icNo, matric_no: matricNo })
+      }}
+    >
+      <FieldGroup>
+        <Field>
+          <FieldLabel htmlFor="edit-name">Name</FieldLabel>
+          <Input
+            id="edit-name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-ic">IC No.</FieldLabel>
+          <Input
+            id="edit-ic"
+            value={icNo}
+            onChange={(e) => setIcNo(e.target.value)}
+          />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-matric">Matric No.</FieldLabel>
+          <Input
+            id="edit-matric"
+            value={matricNo}
+            onChange={(e) => setMatricNo(e.target.value)}
+          />
+        </Field>
+      </FieldGroup>
+      <DialogFooter className="mt-4">
+        <Button type="submit">Save Changes</Button>
+      </DialogFooter>
+    </form>
+  )
+}

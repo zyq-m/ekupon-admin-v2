@@ -32,6 +32,13 @@ export const studentAPI = {
       .post<BulkUpsertRes>("/student/bulk-upsert", { students, fundId })
       .then((r) => r.data),
 
+  bulkUploadXlsx: (formData: FormData) =>
+    api
+      .post<BulkUpsertRes>("/student/bulk-upsert", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data),
+
   updateStudent: (updated: InputStudent) =>
     api
       .put<InputStudent>(`/student/${updated.ic_no}`, updated)
@@ -56,8 +63,8 @@ export type InputStudent = {
 
 export type BulkUpsertRes = {
   created: number
-  updated: number
-  skipped: number
+  couponsAssigned: number
+  total: number
 }
 
 export type UpdateBalanceRes = {
@@ -98,12 +105,12 @@ export interface StudentUploadComparison {
     name: string
   }
   exists: boolean
-  existing?: {
+  existing: {
     ic_no: string
     matric_no: string
     name: string
     user_id: number // From your Prisma schema
-  }
+  } | null
   differences: string[] // Array of difference messages
   conflict: boolean
 }

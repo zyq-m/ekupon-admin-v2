@@ -28,6 +28,7 @@ interface DataTableProps<TData, TValue> {
   colName?: string
   placeholder?: string
   children?: ReactNode
+  selectionActions?: (selected: TData[], resetSelection: () => void) => ReactNode
 }
 
 import {
@@ -59,6 +60,7 @@ export default function DataTable<TData, TValue>({
   colName,
   placeholder = "",
   children,
+  selectionActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -241,16 +243,23 @@ export default function DataTable<TData, TValue>({
       {/* Helper */}
       {table.getFilteredSelectedRowModel().rows.length > 0 && (
         <div className="absolute right-6 bottom-6">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="size-14 rounded-2xl">
-                <Pencil />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem>Change amount</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {selectionActions ? (
+            selectionActions(
+              table.getFilteredSelectedRowModel().rows.map((r) => r.original),
+              () => table.resetRowSelection()
+            )
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="size-14 rounded-2xl">
+                  <Pencil />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem>Change amount</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       )}
     </div>

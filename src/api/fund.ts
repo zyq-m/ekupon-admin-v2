@@ -17,6 +17,15 @@ export type FundSummary = Fund & {
   totalFund: number
   totalExpenses: number
   balance: number
+  coupons: {
+    balance: number
+    student: {
+      name: string
+      ic_no: string
+      user_id: number
+      matric_no: string
+    } | null
+  }[]
 }
 
 // DTO for create/update; match your backend /fund POST/PUT body

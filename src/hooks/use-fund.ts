@@ -1,9 +1,4 @@
-import {
-  fundAPI,
-  type Fund,
-  type FundInput,
-  type FundSummary,
-} from "@/api/fund"
+import { fundAPI, type Fund, type FundInput } from "@/api/fund"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -59,19 +54,6 @@ export function useUpdateFund() {
         return old.map((f) => (f.id === updatedFund.id ? updatedFund : f))
       })
 
-      // Update detail cache
-      queryClient.setQueryData<FundSummary>(["fund", updatedFund.id], (old) => {
-        if (!old)
-          return {
-            ...updatedFund,
-            totalFund: 0,
-            totalExpenses: 0,
-            balance: 0,
-          }
-        return { ...old, ...updatedFund }
-      })
-
-      // queryClient.invalidateQueries({ queryKey: ["fund"] })
       toast("Fund has been updated")
     },
   })
