@@ -261,67 +261,66 @@ export function StudentSearchDialog({
       <DialogContent
         className="md:max-w-1/2"
         onCloseAutoFocus={() => form.reset()}
+        aria-describedby={undefined}
       >
-        <DialogHeader className="gap-4">
+        <DialogHeader>
           <DialogTitle>Search Students</DialogTitle>
-          <Separator />
-          <DialogDescription>
-            <form
-              id="student-search"
-              onSubmit={handleSubmit} // Fixed!
-            >
-              <FieldGroup>
-                <Controller
-                  name="searchTerm"
-                  control={form.control}
-                  render={({ field, fieldState }) => (
-                    <Field data-invalid={fieldState.invalid}>
-                      <InputGroup>
-                        <InputGroupAddon>
-                          <Search />
-                        </InputGroupAddon>
-                        <InputGroupInput
-                          {...field}
-                          id="student-search-term"
-                          placeholder="Search for student"
-                        />
-                        <InputGroupAddon align="inline-end">
-                          <Controller
-                            name="searchBy"
-                            control={form.control}
-                            render={({ field: selectField }) => (
-                              <Select
-                                onValueChange={selectField.onChange}
-                                value={selectField.value}
-                              >
-                                <InputGroupButton asChild>
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                </InputGroupButton>
-                                <SelectContent align="end">
-                                  <SelectItem value="name">Name</SelectItem>
-                                  <SelectItem value="matric_no">
-                                    Matric No.
-                                  </SelectItem>
-                                  <SelectItem value="ic_no">IC No.</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
-                        </InputGroupAddon>
-                      </InputGroup>
-                      {fieldState.invalid && (
-                        <FieldError errors={[fieldState.error]} />
-                      )}
-                    </Field>
-                  )}
-                />
-              </FieldGroup>
-            </form>
-          </DialogDescription>
         </DialogHeader>
-
+        <Separator />
+        {/* Search form */}
+        <form
+          id="student-search"
+          onSubmit={handleSubmit} // Fixed!
+        >
+          <FieldGroup>
+            <Controller
+              name="searchTerm"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <InputGroup>
+                    <InputGroupAddon>
+                      <Search />
+                    </InputGroupAddon>
+                    <InputGroupInput
+                      {...field}
+                      id="student-search-term"
+                      placeholder="Search for student"
+                    />
+                    <InputGroupAddon align="inline-end">
+                      <Controller
+                        name="searchBy"
+                        control={form.control}
+                        render={({ field: selectField }) => (
+                          <Select
+                            onValueChange={selectField.onChange}
+                            value={selectField.value}
+                          >
+                            <InputGroupButton asChild>
+                              <SelectTrigger>
+                                <SelectValue />
+                              </SelectTrigger>
+                            </InputGroupButton>
+                            <SelectContent align="end">
+                              <SelectItem value="name">Name</SelectItem>
+                              <SelectItem value="matric_no">
+                                Matric No.
+                              </SelectItem>
+                              <SelectItem value="ic_no">IC No.</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    </InputGroupAddon>
+                  </InputGroup>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </FieldGroup>
+        </form>
         <div className="no-scrollbar max-h-[50vh] overflow-y-auto">
           <DataTable
             columns={columnSimple({ suspend })}

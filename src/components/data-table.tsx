@@ -28,21 +28,17 @@ interface DataTableProps<TData, TValue> {
   colName?: string
   placeholder?: string
   children?: ReactNode
-  selectionActions?: (selected: TData[], resetSelection: () => void) => ReactNode
+  selectionActions?: (
+    selected: TData[],
+    resetSelection: () => void
+  ) => ReactNode
 }
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Pencil,
   Search,
 } from "lucide-react"
 import { Label } from "./ui/label"
@@ -239,29 +235,6 @@ export default function DataTable<TData, TValue>({
           </div>
         </div>
       </div>
-
-      {/* Helper */}
-      {table.getFilteredSelectedRowModel().rows.length > 0 && (
-        <div className="absolute right-6 bottom-6">
-          {selectionActions ? (
-            selectionActions(
-              table.getFilteredSelectedRowModel().rows.map((r) => r.original),
-              () => table.resetRowSelection()
-            )
-          ) : (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button className="size-14 rounded-2xl">
-                  <Pencil />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Change amount</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
-      )}
     </div>
   )
 }

@@ -16,8 +16,8 @@ import { studentCouponCol, studentTfCol } from "./columns"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ViewTfStudentPage() {
-  const { icNo, fundId } = useParams<StudentTfParams>()
-  const [id, setFundId] = useState(fundId)
+  const { icNo } = useParams<StudentTfParams>()
+  const [id, setFundId] = useState("")
   const { data: profile } = useGetStudentById(icNo!)
   const { data: tf } = useGetStudentTf({ icNo: icNo!, fundId: id! })
 

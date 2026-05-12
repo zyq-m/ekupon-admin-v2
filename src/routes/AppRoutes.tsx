@@ -29,7 +29,7 @@ export const AppRoutes: RouteObject[] = [
         children: [
           { path: "", element: <StudentListPage /> },
           { path: "import", element: <ImportStudent /> },
-          { path: ":icNo/:fundId", element: <ViewTfStudentPage /> },
+          { path: ":icNo", element: <ViewTfStudentPage /> },
         ],
       },
       {

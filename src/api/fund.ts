@@ -18,12 +18,16 @@ export type FundSummary = Fund & {
   totalExpenses: number
   balance: number
   coupons: {
+    id: number
     balance: number
     student: {
       name: string
       ic_no: string
       user_id: number
       matric_no: string
+      user: {
+        is_active: boolean
+      }
     } | null
   }[]
 }

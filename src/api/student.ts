@@ -10,7 +10,9 @@ export const studentAPI = {
     api.get<Student>(`/student/${icNo}`).then((res) => res.data),
 
   updateCouponBalance: (body: UpdateBalanceBody) =>
-    api.put<UpdateBalanceRes>("/student/coupon", body).then((r) => r.data),
+    api
+      .put<UpdateBalanceRes>("/student/coupon/balance", body)
+      .then((r) => r.data),
 
   checkLoad: (formData: FormData) =>
     api

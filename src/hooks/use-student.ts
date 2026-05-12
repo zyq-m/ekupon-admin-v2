@@ -34,8 +34,8 @@ export function useUpdateCouponBalance() {
     mutationFn: (body: UpdateBalanceBody) =>
       studentAPI.updateCouponBalance(body),
     onSuccess: () => {
-      // refetch or invalidate your student / fund list
       queryClient.invalidateQueries({ queryKey: ["student"] })
+      queryClient.invalidateQueries({ queryKey: ["fund"] })
     },
   })
 }

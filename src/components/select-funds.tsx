@@ -7,15 +7,22 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox"
 import { useGetFunds } from "@/hooks/use-fund"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 export function SelectFunds({
+  value: externalValue,
   onValueChange,
 }: {
+  value?: string | null
   onValueChange: (id: number) => void
 }) {
   const { data } = useGetFunds()
   const [value, setValue] = useState<string | null>("")
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (externalValue !== undefined) setValue(externalValue)
+  }, [externalValue])
 
   const handleSelect = (selectedName: string | null) => {
     // Find the ID corresponding to the selected name

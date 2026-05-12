@@ -19,6 +19,7 @@ import { useUpdateCouponBalance } from "@/hooks/use-student"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { ReactNode } from "react"
 import { Controller, useForm } from "react-hook-form"
+import { toast } from "sonner"
 import { z } from "zod"
 
 // ========== Form schema ==========
@@ -69,9 +70,10 @@ export function CouponAmountDialog({
         balance: values.balance,
       },
       {
-        onSuccess: () => {
+        onSuccess: (res) => {
           onSubmit?.({ couponId: coupon.id, balance: values.balance })
           onOpenChange(false)
+          toast.success(res.message)
         },
       }
     )
