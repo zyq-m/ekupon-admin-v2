@@ -6,7 +6,10 @@ import {
 } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { useBuildChecker } from "@/hooks/use-build-checker"
+import { useEffect } from "react"
 import { Navigate, Outlet, useLocation } from "react-router-dom"
+import { toast } from "sonner"
 import { ModeToggle } from "./mode-toggle"
 
 // Map paths to titles
@@ -19,6 +22,23 @@ const titleMap: Record<string, string> = {
 }
 
 export function DashboardLayout() {
+  useBuildChecker()
+
+  useEffect(() => {
+    const onNewBuild = () => {
+      toast("New version available", {
+        description: "A new build has been deployed.",
+        action: {
+          label: "Refresh",
+          onClick: () => window.location.reload(),
+        },
+        duration: Infinity,
+      })
+    }
+    window.addEventListener("new-build", onNewBuild)
+    return () => window.removeEventListener("new-build", onNewBuild)
+  }, [])
+
   const location = useLocation()
   // Get the title or default to 'Dashboard'
   const currentTitle = titleMap[location.pathname] || "Dashboard"
