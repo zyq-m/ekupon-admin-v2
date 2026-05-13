@@ -43,7 +43,7 @@ export const studentAPI = {
 
   updateStudent: (updated: InputStudent) =>
     api
-      .put<InputStudent>(`/student/${updated.ic_no}`, updated)
+      .put<InputStudent>(`/student/${updated.userId}`, updated)
       .then((r) => r.data),
 
   searchStudents: (search: { searchTerm?: string; searchBy?: string }) =>
@@ -61,6 +61,7 @@ export type InputStudent = {
   matric_no: string
   ic_no: string
   name: string
+  userId: number
 }
 
 export type BulkUpsertRes = {

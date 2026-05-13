@@ -174,16 +174,19 @@ export function ImportStudent() {
       student: StudentUploadComparison,
       resolved: StudentUploadComparison["uploaded"]
     ) => {
-      update.mutate(resolved, {
-        onSuccess: () => {
-          updateStudentData(student, resolved)
-          toast.success("Student updated")
-        },
-        onError: (error: AxiosError<{ message: string }>) => {
-          const msg = error.response?.data?.message
-          toast.error(msg || "Failed to update student")
-        },
-      })
+      update.mutate(
+        { ...resolved, userId: student.existing!.user_id },
+        {
+          onSuccess: () => {
+            updateStudentData(student, resolved)
+            toast.success("Student updated")
+          },
+          onError: (error: AxiosError<{ message: string }>) => {
+            const msg = error.response?.data?.message
+            toast.error(msg || "Failed to update student")
+          },
+        }
+      )
     },
     [update, updateStudentData]
   )

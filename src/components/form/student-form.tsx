@@ -353,7 +353,12 @@ export function EditForm({
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        onSave({ name, ic_no: icNo, matric_no: matricNo })
+        onSave({
+          name,
+          ic_no: icNo,
+          matric_no: matricNo,
+          userId: student.user_id,
+        })
       }}
     >
       <FieldGroup>
