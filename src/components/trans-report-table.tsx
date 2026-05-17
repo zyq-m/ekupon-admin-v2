@@ -73,12 +73,12 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
 
       const rows = (data?.transactions || []).map((trx, idx) => [
         idx + 1,
-        trx.cafe_name,
-        trx.premise,
-        trx.owner_name,
-        trx.no_tel,
-        trx.account_no,
-        trx.bank,
+        trx.cafe_name.toUpperCase(),
+        trx.premise.toUpperCase(),
+        trx.owner_name.toUpperCase(),
+        trx.no_tel.toUpperCase(),
+        trx.account_no.toUpperCase(),
+        trx.bank.toUpperCase(),
         trx.totalTransaction,
         trx.totalAmount.toFixed(2),
       ])
@@ -98,7 +98,7 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
       // Add the last row: 4 columns, where col 1 spans 6
       const summaryRow = [
         {
-          content: `Dicetak pada ${dayjs().format("DD/MM/YYYY hh:mma")}`,
+          content: `DICETAK PADA ${dayjs().format("DD/MM/YYYY hh:mmA")}`,
           colSpan: 6,
         },
         "JUMLAH", // 7th col
