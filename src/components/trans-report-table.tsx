@@ -139,6 +139,7 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
     }
     img.src = imgPath
   }
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -146,75 +147,80 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
           <Printer />
         </Button>
       </DialogTrigger>
-      <DialogContent className="overflow-x-auto md:max-w-4/5">
+      <DialogContent className="md:max-w-4/5">
         <DialogTitle>Transction reports</DialogTitle>
         <DialogDescription>
           Transaction of {data?.fund.name} from {formatDate(tfPayload.from)} to{" "}
           {formatDate(tfPayload.to)}
         </DialogDescription>
-        <Table className="w-full text-xs">
-          <TableCaption className="pb-4">
-            List of transactions details
-          </TableCaption>
-          <TableHeader>
-            <TableRow className="bg-muted">
-              <TableHead className="border">BIL</TableHead>
-              <TableHead className="border">NAMA SYARIKAT</TableHead>
-              <TableHead className="border">ALAMAT PREMIS</TableHead>
-              <TableHead className="border">PEMILIK/PENGURUS</TableHead>
-              <TableHead className="border">NO TEL</TableHead>
-              <TableHead className="border">NO AKAUN</TableHead>
-              <TableHead className="border text-center">BANK</TableHead>
-              <TableHead className="border text-center">TRANSAKSI</TableHead>
-              <TableHead className="border text-center">JUMLAH(RM)</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data?.transactions.map((trx, idx) => (
-              <TableRow key={trx.id}>
-                <TableCell className="border px-2 py-1 text-center">
-                  {idx + 1}
-                </TableCell>
-                <TableCell className="border px-2 py-1">
-                  {trx.cafe_name}
-                </TableCell>
-                <TableCell className="border px-2 py-1">
-                  {trx.premise}
-                </TableCell>
-                <TableCell className="border px-2 py-1">
-                  {trx.owner_name}
-                </TableCell>
-                <TableCell className="border px-2 py-1">{trx.no_tel}</TableCell>
-                <TableCell className="border px-2 py-1">
-                  {trx.account_no}
-                </TableCell>
-                <TableCell className="border px-2 py-1 text-center">
-                  {trx.bank}
-                </TableCell>
-                <TableCell className="border px-2 py-1 text-center">
-                  {trx.totalTransaction}
-                </TableCell>
-                <TableCell className="border px-2 py-1 text-center">
-                  {trx.totalAmount.toFixed(2)}
-                </TableCell>
+        <div className="max-h-[50vh] overflow-auto">
+          <Table className="text-xs">
+            <TableCaption className="pb-4">
+              List of transactions details
+            </TableCaption>
+            <TableHeader>
+              <TableRow className="bg-muted">
+                <TableHead className="border">BIL</TableHead>
+                <TableHead className="border">NAMA SYARIKAT</TableHead>
+                <TableHead className="border">ALAMAT PREMIS</TableHead>
+                <TableHead className="border">PEMILIK/PENGURUS</TableHead>
+                <TableHead className="border">NO TEL</TableHead>
+                <TableHead className="border">NO AKAUN</TableHead>
+                <TableHead className="border text-center">BANK</TableHead>
+                <TableHead className="border text-center">TRANSAKSI</TableHead>
+                <TableHead className="border text-center">JUMLAH(RM)</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-          {data?.summary && (
-            <TableFooter>
-              <TableRow className="text-center font-bold">
-                <TableCell className="border px-2 py-1" colSpan={6} />
-                <TableCell className="border px-2 py-1">JUMLAH</TableCell>
-                <TableCell className="border px-2 py-1">
-                  {data.summary.totalTf}
-                </TableCell>
-                <TableCell className="border px-2 py-1">
-                  {data.summary.totalAmount.toFixed(2)}
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          )}
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {data?.transactions.map((trx, idx) => (
+                <TableRow key={trx.id}>
+                  <TableCell className="border px-2 py-1 text-center">
+                    {idx + 1}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {trx.cafe_name}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {trx.premise}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {trx.owner_name}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {trx.no_tel}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {trx.account_no}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1 text-center">
+                    {trx.bank}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1 text-center">
+                    {trx.totalTransaction}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1 text-center">
+                    {trx.totalAmount.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+            {data?.summary && (
+              <TableFooter>
+                <TableRow className="text-center font-bold">
+                  <TableCell className="border px-2 py-1" colSpan={6} />
+                  <TableCell className="border px-2 py-1">JUMLAH</TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {data.summary.totalTf}
+                  </TableCell>
+                  <TableCell className="border px-2 py-1">
+                    {data.summary.totalAmount.toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            )}
+          </Table>
+        </div>
+
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
