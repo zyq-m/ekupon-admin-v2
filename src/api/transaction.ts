@@ -10,6 +10,7 @@ export type TfParams = {
 }
 
 export type DirectedTfParams = {
+  fundId: number
   from: string
   to: string
 }
@@ -54,7 +55,7 @@ export const tfAPI = {
 
   listDirectedTf: (params: DirectedTfParams) =>
     api
-      .get<DirectedTfSummary[]>("/transaction/directed", { params })
+      .get<CafeTfRes>("/transaction/directed", { params })
       .then((r) => r.data),
 
   voidDirectedTf: (body: VoidDirectedTfInput) =>

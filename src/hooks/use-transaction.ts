@@ -38,12 +38,12 @@ export function useGetStudentTf({ fundId, icNo }: StudentTfParams) {
 }
 
 export function useGetDirectedTf(params: DirectedTfParams) {
-  const { from, to } = params
+  const { from, fundId, to } = params
 
   return useQuery({
-    queryKey: ["transaction", "directed", from, to],
+    queryKey: ["transaction", "directed", fundId, from, to],
     queryFn: () => tfAPI.listDirectedTf(params),
-    enabled: !!from && !!to,
+    enabled: !!fundId && !!from && !!to,
   })
 }
 

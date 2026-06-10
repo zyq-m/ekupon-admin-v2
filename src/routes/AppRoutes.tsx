@@ -12,7 +12,6 @@ import { StudentPage } from "@/pages/student"
 import { ImportStudent } from "@/pages/student/ImportStudent"
 import { StudentListPage } from "@/pages/student/StudentListPage"
 import ViewTfStudentPage from "@/pages/student/ViewTfPage"
-import { DirectedTrans } from "@/pages/trans/DirectedTrans"
 import { TransactionPage } from "@/pages/TransactionPage"
 import { Navigate, type RouteObject } from "react-router-dom"
 
@@ -42,7 +41,6 @@ export const AppRoutes: RouteObject[] = [
         ],
       },
       { path: "transaction", element: <TransactionPage /> },
-      { path: "transaction/directed", element: <DirectedTrans /> },
       {
         path: "coupon",
         element: <CouponPage />,

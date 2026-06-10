@@ -8,7 +8,7 @@ import { TotalTransaction } from "@/components/chart/total-transaction"
 import DataTable from "@/components/data-table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { columns } from "./fund/columns"
-import { transCol } from "./trans/column"
+import { transCol } from "./cafe/columns"
 
 export function DashboardPage() {
   const { data } = useGetData()

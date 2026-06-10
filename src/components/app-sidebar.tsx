@@ -56,10 +56,8 @@ const menuItems: MenuItem[] = [
   {
     title: "Transaction",
     icon: CreditCard,
-    children: [
-      { title: "View Transaction", url: "/ekupon-admin/transaction" },
-      { title: "Directed Transaction", url: "/ekupon-admin/transaction/directed" },
-    ],
+    url: "/ekupon-admin/transaction",
+    children: [],
   },
 ]
 
