@@ -56,9 +56,11 @@ export default function DataTable<TData, TValue>({
   colName,
   placeholder = "",
   children,
+  selectionActions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+  const [rowSelection, setRowSelection] = useState({})
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -70,11 +72,19 @@ export default function DataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    enableRowSelection: true,
+    onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
+      rowSelection,
     },
   })
+
+  const selectedRows = table.getFilteredSelectedRowModel().rows.map(
+    (r) => r.original
+  )
+  const resetSelection = () => setRowSelection({})
 
   return (
     <div>
@@ -95,7 +105,11 @@ export default function DataTable<TData, TValue>({
               className="pl-9" // Padding to make room for the icon
             />
           </div>
-          {children}
+          <div className="flex items-center gap-2">
+            {selectedRows.length > 0 &&
+              selectionActions?.(selectedRows, resetSelection)}
+            {children}
+          </div>
         </div>
       )}
       {/* Table */}

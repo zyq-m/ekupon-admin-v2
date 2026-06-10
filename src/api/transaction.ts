@@ -9,7 +9,27 @@ export type TfParams = {
   to: string
 }
 
+export type DirectedTfParams = {
+  from: string
+  to: string
+}
+
 export type StudentTfParams = { icNo: string; fundId: string }
+
+export type VoidDirectedTfInput = {
+  from: string
+  to: string
+  fundId: number
+  cafeIds: string[]
+}
+
+export type BulkCreateTfInput = {
+  fundId: number
+  students: string[]
+  cafeId: string
+  date: string
+  amount: number
+}
 
 export const tfAPI = {
   listTf: (tfParams: TfParams) =>
@@ -28,6 +48,19 @@ export const tfAPI = {
     api
       .get<StudentTfRes>(`/transaction/cafe/${cafeId}`, { params: tfParams })
       .then((res) => res.data),
+
+  createBulkTf: (input: BulkCreateTfInput) =>
+    api.post("/transaction/direct", input).then((r) => r.data),
+
+  listDirectedTf: (params: DirectedTfParams) =>
+    api
+      .get<DirectedTfSummary[]>("/transaction/directed", { params })
+      .then((r) => r.data),
+
+  voidDirectedTf: (body: VoidDirectedTfInput) =>
+    api
+      .post<{ deleted: number }>("/transaction/void-direct", body)
+      .then((r) => r.data),
 }
 
 export type StudentTfRes = {
@@ -67,6 +100,14 @@ export type Transaction = {
   total_earn: number
   totalTransaction: number
   totalAmount: number
+}
+
+export type DirectedTfSummary = {
+  cafe: { id: string; name: string }
+  fund: { id: number; name: string }
+  rate_per_trans: number
+  trans_count: number
+  trans_sum: number
 }
 
 export type Summary = {
