@@ -7,8 +7,33 @@ export const cafeAPI = {
   getCafeById: (id: string) =>
     api.get<TCafeProfile>(`/cafe/${id}`).then((res) => res.data),
 
+  createCafe: (input: CreateCafeInput) =>
+    api.post<UpdatedCafeRes>("/cafe", input).then((r) => r.data),
+
+  bulkUploadCafe: (formData: FormData) =>
+    api
+      .post<BulkCafeUploadRes>("/cafe", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data),
+
   updateCafe: ({ ...cafe }: UpdateCafeInput & { id: string }) =>
     api.put<UpdatedCafeRes>(`/cafe/${cafe.id}`, cafe).then((r) => r.data),
+}
+
+export type BulkCafeUploadRes = { created: number; total: number; message: string }
+
+export type CreateCafeInput = {
+  cafeId: string
+  cafe_name: string
+  owner_name: string
+  account_no: string
+  no_tel: string
+  bank: string
+  start: string
+  end: string
+  premise: string
+  registerNo: string
 }
 
 export type UpdatedCafeRes = { message: string; cafe: Cafe }

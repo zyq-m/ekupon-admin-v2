@@ -1,4 +1,4 @@
-import type { Cafe, UpdateCafeInput } from "@/api/cafe"
+import type { Cafe, CreateCafeInput } from "@/api/cafe"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -40,7 +40,7 @@ export function CafeFormDialog({
   cafe?: Cafe
   isOpen?: boolean
   setOpen?: (b: boolean) => void
-  onSubmit: (cafe: UpdateCafeInput) => void
+  onSubmit: (cafe: CreateCafeInput) => void
 }) {
   const [localOpen, setLocalOpen] = useState(false)
   const finalOpen = isOpen ?? localOpen
@@ -73,15 +73,16 @@ export function CafeFormDialog({
 // ========== Zod schema ==========
 
 const cafeFormSchema = z.object({
+  cafeId: z.string().min(1, "Cafe ID is required"),
   cafe_name: z.string().min(1, "Cafe name is required"),
   owner_name: z.string().min(1, "Owner name is required"),
   account_no: z.string().min(1, "Account number is required"),
-  no_tel: z.string().optional(),
+  no_tel: z.string().min(1, "Phone number is required"),
   bank: z.string().min(1, "Bank is required"),
-  premise: z.string().optional(),
-  registerNo: z.string().optional(),
-  start: z.string().optional(), // leave as string for <input type="date">
-  end: z.string().optional(),
+  premise: z.string(),
+  registerNo: z.string(),
+  start: z.string().min(1, "Start date is required"),
+  end: z.string().min(1, "End date is required"),
 })
 
 type CafeFormValues = z.infer<typeof cafeFormSchema>
@@ -90,7 +91,7 @@ type CafeFormValues = z.infer<typeof cafeFormSchema>
 
 type FormProps = {
   data?: Cafe
-  onSubmit: (cafe: UpdateCafeInput) => void
+  onSubmit: (cafe: CreateCafeInput) => void
 }
 
 export function CafeForm({ data, onSubmit }: FormProps) {
@@ -98,19 +99,18 @@ export function CafeForm({ data, onSubmit }: FormProps) {
     resolver: zodResolver(cafeFormSchema),
     defaultValues: data
       ? {
+          cafeId: data.id,
           cafe_name: data.cafe_name,
           owner_name: data.owner_name,
           account_no: data.account_no,
-          no_tel: data.no_tel ?? undefined,
+          no_tel: data.no_tel ?? "",
           bank: data.bank,
-          premise: data.premise ?? undefined,
-          registerNo: data.registerNo ?? undefined,
+          premise: data.premise ?? "",
+          registerNo: data.registerNo ?? "",
           start: data.start
             ? new Date(data.start).toISOString().split("T")[0]
-            : undefined,
-          end: data.end
-            ? new Date(data.end).toISOString().split("T")[0]
-            : undefined,
+            : "",
+          end: data.end ? new Date(data.end).toISOString().split("T")[0] : "",
         }
       : undefined,
   })
@@ -122,6 +122,27 @@ export function CafeForm({ data, onSubmit }: FormProps) {
       className="space-y-6"
     >
       <FieldGroup>
+        {!data && (
+          <Controller
+            name="cafeId"
+            control={form.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid}>
+                <FieldLabel htmlFor="cafeId">Cafe ID</FieldLabel>
+                <Input
+                  {...field}
+                  id="cafeId"
+                  aria-invalid={fieldState.invalid}
+                  autoComplete="off"
+                  placeholder="ramlah50"
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+        )}
         <Controller
           name="cafe_name"
           control={form.control}
@@ -231,9 +252,7 @@ export function CafeForm({ data, onSubmit }: FormProps) {
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="registerNo">
-                Register No (optional)
-              </FieldLabel>
+              <FieldLabel htmlFor="registerNo">Register No</FieldLabel>
               <Input
                 {...field}
                 id="registerNo"

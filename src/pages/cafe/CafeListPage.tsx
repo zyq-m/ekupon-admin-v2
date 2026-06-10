@@ -7,7 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useSuspendUser } from "@/hooks/use-auth"
-import { useGetCafe, useUpdateCafe } from "@/hooks/use-cafe"
+import { useGetCafe, useCreateCafe, useUpdateCafe } from "@/hooks/use-cafe"
 import { Plus } from "lucide-react"
 import { useState } from "react"
 import { columns } from "./columns"
@@ -16,6 +16,7 @@ export function CafeListPage() {
   const { data } = useGetCafe()
   const suspend = useSuspendUser()
   const update = useUpdateCafe()
+  const create = useCreateCafe()
 
   const [open, setOpen] = useState(false)
 
@@ -39,7 +40,9 @@ export function CafeListPage() {
         </Tooltip>
 
         <CafeFormDialog
-          onSubmit={() => {}}
+          onSubmit={(input) =>
+            create.mutate(input, { onSuccess: () => setOpen(false) })
+          }
           title="Create new cafe"
           desc="Fill in the cafe details below"
           isOpen={open}
