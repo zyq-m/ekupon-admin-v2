@@ -1,4 +1,4 @@
-import type { Cafe, CreateCafeInput, UpdateCafeInput } from "@/api/cafe"
+import type { Cafe, CreateCafeInput } from "@/api/cafe"
 import type { TfComplete, Transaction } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
 import { CafeFormDialog } from "@/components/form/cafe-form"
