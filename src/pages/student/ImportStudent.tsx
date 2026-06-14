@@ -37,6 +37,7 @@ import { StudentSearchDialog } from "@/components/form/student-form"
 export function ImportStudent() {
   const [file, setFile] = useState<File | null>(null)
   const [fundId, setFundId] = useState<number | null>(null)
+  const [uploadType, setUploadType] = useState<"normal" | "MMS">("normal")
   const [isDragOver, setIsDragOver] = useState(false)
   const [tableData, setTableData] = useState<StudentUploadResponse["students"]>(
     []
@@ -57,6 +58,9 @@ export function ImportStudent() {
       const formData = new FormData()
       formData.append("file", f)
       formData.append("sheet", "0")
+      if (uploadType === "MMS") {
+        formData.append("type", "MMS")
+      }
 
       checkUpload.mutate(formData, {
         onSuccess: (res) => {
@@ -201,6 +205,25 @@ export function ImportStudent() {
           </p>
         </div>
 
+        <div className="flex gap-0">
+          <Button
+            type="button"
+            variant={uploadType === "normal" ? "default" : "outline"}
+            className="rounded-r-none"
+            onClick={() => setUploadType("normal")}
+          >
+            Normal
+          </Button>
+          <Button
+            type="button"
+            variant={uploadType === "MMS" ? "default" : "outline"}
+            className="rounded-l-none"
+            onClick={() => setUploadType("MMS")}
+          >
+            MMS
+          </Button>
+        </div>
+
         <label
           htmlFor="excel-upload"
           onDragOver={handleDragOver}
@@ -241,6 +264,11 @@ export function ImportStudent() {
               <Upload className="h-6 w-6 text-gray-500" />
               <span className="text-sm text-gray-600">
                 Click to upload or drag & drop your .xlsx file
+                {uploadType === "MMS" && (
+                  <span className="ml-1 text-xs text-muted-foreground">
+                    (MMS mode)
+                  </span>
+                )}
               </span>
             </div>
           )}
