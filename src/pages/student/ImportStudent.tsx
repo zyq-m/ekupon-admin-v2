@@ -150,7 +150,11 @@ export function ImportStudent() {
 
     const formData = new FormData()
     formData.append("file", file)
+    formData.append("sheet", "0")
     formData.append("fundId", String(fundId))
+    if (uploadType === "MMS") {
+      formData.append("type", "MMS")
+    }
 
     bulkUploadXlsx.mutate(formData, {
       onSuccess: (res) => {
