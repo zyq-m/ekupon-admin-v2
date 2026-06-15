@@ -1,4 +1,9 @@
-import { fundAPI, type Fund, type FundInput } from "@/api/fund"
+import {
+  fundAPI,
+  type BalanceManyInput,
+  type Fund,
+  type FundInput,
+} from "@/api/fund"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -55,6 +60,25 @@ export function useUpdateFund() {
       })
 
       toast("Fund has been updated")
+    },
+  })
+}
+
+export function useUpdateBalanceMany() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (body: BalanceManyInput) =>
+      fundAPI.updateBalanceMany(body),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["fund"] })
+      toast.success(`${res.count} coupon(s) updated`)
+    },
+    onError: (err) => {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Failed to update coupon balances"
+      toast.error(message)
     },
   })
 }

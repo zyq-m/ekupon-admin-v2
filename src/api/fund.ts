@@ -42,9 +42,21 @@ export type FundInput = {
   limit_per_tf: number
 }
 
+export type BalanceManyInput = {
+  amount: number
+  coupon_ids: number[]
+}
+
+export type BalanceManyRes = {
+  count: number
+}
+
 export const fundAPI = {
   // List
   fundList: () => api.get<Fund[]>("/fund").then((r) => r.data),
+
+  updateBalanceMany: (body: BalanceManyInput) =>
+    api.put<BalanceManyRes>("/fund/balance-many", body).then((r) => r.data),
 
   // Detail
   fund: (fundId?: number) =>

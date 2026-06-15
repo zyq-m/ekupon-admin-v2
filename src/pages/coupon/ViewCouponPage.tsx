@@ -1,5 +1,6 @@
 import type { Cafe } from "@/api/cafe"
 import DataTable from "@/components/data-table"
+import { BulkCouponAmountDialog } from "@/components/form/bulk-coupon-amount-form"
 import { FundSummaryCards } from "@/components/fund-summary-card"
 import { SelectFunds } from "@/components/select-funds"
 import { Button } from "@/components/ui/button"
@@ -84,6 +85,7 @@ export function ViewCouponPage() {
   const { id } = useParams<{ id: string }>()
   const [fundId, setFundId] = useState<number | undefined>()
   const [sheetOpen, setSheetOpen] = useState(false)
+  const [bulkAmountOpen, setBulkAmountOpen] = useState(false)
   const [selectedStudents, setSelectedStudents] = useState<CouponRow[]>([])
   const [cafeValue, setCafeValue] = useState<string | null>(null)
   const resetSelectionRef = useRef<() => void>(() => {})
@@ -158,16 +160,27 @@ export function ViewCouponPage() {
           selectionActions={(selected, resetSelection) => {
             resetSelectionRef.current = resetSelection
             return (
-              <Button
-                variant={"secondary"}
-                onClick={() => {
-                  setSelectedStudents(selected)
-                  setSheetOpen(true)
-                }}
-              >
-                <CirclePlus />
-                Create {selected.length} transactions
-              </Button>
+              <>
+                <Button
+                  variant={"secondary"}
+                  onClick={() => {
+                    setSelectedStudents(selected)
+                    setBulkAmountOpen(true)
+                  }}
+                >
+                  Update balance
+                </Button>
+                <Button
+                  variant={"secondary"}
+                  onClick={() => {
+                    setSelectedStudents(selected)
+                    setSheetOpen(true)
+                  }}
+                >
+                  <CirclePlus />
+                  Create {selected.length} transactions
+                </Button>
+              </>
             )
           }}
         >
@@ -188,6 +201,7 @@ export function ViewCouponPage() {
 
           <form
             id="bulk-trans-form"
+            // eslint-disable-next-line react-hooks/refs
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex-1 space-y-6 p-4"
           >
@@ -295,6 +309,17 @@ export function ViewCouponPage() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      <BulkCouponAmountDialog
+        open={bulkAmountOpen}
+        onOpenChange={setBulkAmountOpen}
+        coupons={selectedStudents}
+        studentCount={selectedStudents.length}
+        onSuccess={() => {
+          setSelectedStudents([])
+          resetSelectionRef.current()
+        }}
+      />
     </div>
   )
 }
