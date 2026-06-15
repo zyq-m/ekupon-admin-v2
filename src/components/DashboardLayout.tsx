@@ -61,7 +61,7 @@ export function DashboardLayout() {
             <TooltipProvider>
               <Outlet />
             </TooltipProvider>
-            <Toaster position="top-right" />
+            <Toaster richColors position="top-right" />
           </div>
         </main>
       </SidebarInset>
