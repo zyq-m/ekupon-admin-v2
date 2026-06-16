@@ -138,8 +138,8 @@ export function ImportStudent() {
     const wb = XLSX.utils.book_new()
     const rows = tableData.map((s) => ({
       Name: s.uploaded.name,
-      "IC No.": s.uploaded.ic_no,
       "Matric No.": s.uploaded.matric_no,
+      "IC No.": s.uploaded.ic_no,
     }))
     const ws = XLSX.utils.json_to_sheet(rows)
     XLSX.utils.book_append_sheet(wb, ws, String(fundId))

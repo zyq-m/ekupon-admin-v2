@@ -71,15 +71,14 @@ export const comparisonCol = (
     cell: ({ row }) => row.original.uploaded.name,
   },
   {
-    id: "ic_no",
-    header: "IC No.",
-    cell: ({ row }) => row.original.uploaded.ic_no,
-  },
-
-  {
     id: "matric_no",
     header: "Matric No.",
     cell: ({ row }) => row.original.uploaded.matric_no,
+  },
+  {
+    id: "ic_no",
+    header: "IC No.",
+    cell: ({ row }) => row.original.uploaded.ic_no,
   },
   {
     accessorKey: "differences",
