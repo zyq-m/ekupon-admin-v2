@@ -27,5 +27,5 @@ export const authAPI = {
 
   // Suspend (or activate) a user
   suspendUser: (body: SuspendUserBody) =>
-    api.put<SuspendUserResponse>("/auth/suspend", body).then((res) => res.data),
+    api.post<SuspendUserResponse>("/auth/suspend", body).then((res) => res.data),
 }

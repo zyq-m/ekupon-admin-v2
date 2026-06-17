@@ -56,7 +56,7 @@ export const fundAPI = {
   fundList: () => api.get<Fund[]>("/fund").then((r) => r.data),
 
   updateBalanceMany: (body: BalanceManyInput) =>
-    api.put<BalanceManyRes>("/fund/balance-many", body).then((r) => r.data),
+    api.post<BalanceManyRes>("/fund/balance-many", body).then((r) => r.data),
 
   // Detail
   fund: (fundId?: number) =>
@@ -72,6 +72,6 @@ export const fundAPI = {
 
   // Update existing fund (by id in body or path; adapt to your backend)
   updateFund: (id: number, input: FundInput) =>
-    api.put<Fund>(`/fund`, { ...input, id }).then((r) => r.data),
+    api.post<Fund>(`/fund`, { ...input, id }).then((r) => r.data),
   // or if backend expects `/fund/:id`, use `/fund/${id}` and send partial body
 }

@@ -18,7 +18,7 @@ export const cafeAPI = {
       .then((r) => r.data),
 
   updateCafe: ({ ...cafe }: UpdateCafeInput & { id: string }) =>
-    api.put<UpdatedCafeRes>(`/cafe/${cafe.id}`, cafe).then((r) => r.data),
+    api.post<UpdatedCafeRes>(`/cafe/${cafe.id}`, cafe).then((r) => r.data),
 }
 
 export type BulkCafeUploadRes = { created: number; total: number; message: string }

@@ -11,7 +11,7 @@ export const studentAPI = {
 
   updateCouponBalance: (body: UpdateBalanceBody) =>
     api
-      .put<UpdateBalanceRes>("/student/coupon/balance", body)
+      .post<UpdateBalanceRes>("/student/coupon/balance", body)
       .then((r) => r.data),
 
   checkLoad: (formData: FormData) =>
@@ -43,7 +43,7 @@ export const studentAPI = {
 
   updateStudent: (updated: InputStudent) =>
     api
-      .put<InputStudent>(`/student/${updated.userId}`, updated)
+      .post<InputStudent>(`/student/${updated.userId}`, updated)
       .then((r) => r.data),
 
   searchStudents: (search: { searchTerm?: string; searchBy?: string }) =>
