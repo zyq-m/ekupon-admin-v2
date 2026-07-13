@@ -54,9 +54,7 @@ export const tfAPI = {
     api.post("/transaction/direct", input).then((r) => r.data),
 
   listDirectedTf: (params: DirectedTfParams) =>
-    api
-      .get<CafeTfRes>("/transaction/directed", { params })
-      .then((r) => r.data),
+    api.get<CafeTfRes>("/transaction/directed", { params }).then((r) => r.data),
 
   voidDirectedTf: (body: VoidDirectedTfInput) =>
     api
@@ -93,7 +91,10 @@ export type Transaction = {
   owner_name: string
   account_no: string
   no_tel: string
-  bank: string
+  bank: {
+    code: string
+    name: string
+  }
   premise: string
   registerNo: string | null
   start: string // ISO Date string

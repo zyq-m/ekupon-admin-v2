@@ -221,8 +221,10 @@ export const cafeTransactionCol: ColumnDef<Transaction>[] = [
     header: "Account No.",
   },
   {
-    accessorKey: "bank",
+    id: "bank_name",
+    accessorFn: ({ bank }) => bank.name,
     header: "Bank Name",
+    cell: ({ row }) => <div>{row.original.bank.name}</div>,
   },
   {
     accessorKey: "totalTransaction",

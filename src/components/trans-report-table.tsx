@@ -78,7 +78,7 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
         trx.owner_name.toUpperCase(),
         trx.no_tel.toUpperCase(),
         trx.account_no.toUpperCase(),
-        trx.bank.toUpperCase(),
+        trx.bank.name.toUpperCase(),
         trx.totalTransaction,
         trx.totalAmount.toFixed(2),
       ])
@@ -193,7 +193,7 @@ export default function TransactionReportTable({ data, tfPayload }: Props) {
                     {trx.account_no}
                   </TableCell>
                   <TableCell className="border px-2 py-1 text-center">
-                    {trx.bank}
+                    {trx.bank.name}
                   </TableCell>
                   <TableCell className="border px-2 py-1 text-center">
                     {trx.totalTransaction}
