@@ -17,6 +17,14 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { useGetBank } from "@/hooks/use-cafe"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useState, type ReactNode } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -78,7 +86,7 @@ const cafeFormSchema = z.object({
   owner_name: z.string().min(1, "Owner name is required"),
   account_no: z.string().min(1, "Account number is required"),
   no_tel: z.string().min(1, "Phone number is required"),
-  bank: z.string().min(1, "Bank is required"),
+  bank_code: z.string().min(1, "Bank is required"),
   premise: z.string(),
   registerNo: z.string(),
   start: z.string().min(1, "Start date is required"),
@@ -95,6 +103,7 @@ type FormProps = {
 }
 
 export function CafeForm({ data, onSubmit }: FormProps) {
+  const { data: banks } = useGetBank()
   const form = useForm<CafeFormValues>({
     resolver: zodResolver(cafeFormSchema),
     defaultValues: data
@@ -104,7 +113,7 @@ export function CafeForm({ data, onSubmit }: FormProps) {
           owner_name: data.owner_name,
           account_no: data.account_no,
           no_tel: data.no_tel ?? "",
-          bank: data.bank,
+          bank_code: data.bank_code ?? "",
           premise: data.premise ?? "",
           registerNo: data.registerNo ?? "",
           start: data.start
@@ -196,19 +205,33 @@ export function CafeForm({ data, onSubmit }: FormProps) {
         />
 
         <Controller
-          name="bank"
+          name="bank_code"
           control={form.control}
           render={({ field, fieldState }) => (
             <Field data-invalid={fieldState.invalid}>
-              <FieldLabel htmlFor="bank">Bank</FieldLabel>
-              <Input
-                {...field}
-                id="bank"
-                aria-invalid={fieldState.invalid}
-                autoComplete="off"
-                placeholder="CIMB"
-              />
-              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+              <FieldLabel htmlFor="bank_code">Bank</FieldLabel>
+              <Select
+                value={field.value || undefined}
+                onValueChange={field.onChange}
+              >
+                <SelectTrigger
+                  id="bank_code"
+                  aria-invalid={fieldState.invalid}
+                  className="w-full"
+                >
+                  <SelectValue placeholder="Select a bank" />
+                </SelectTrigger>
+                <SelectContent>
+                  {banks?.map((bank) => (
+                    <SelectItem key={bank.code} value={bank.code}>
+                      {bank.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {fieldState.invalid && (
+                <FieldError errors={[fieldState.error]} />
+              )}
             </Field>
           )}
         />

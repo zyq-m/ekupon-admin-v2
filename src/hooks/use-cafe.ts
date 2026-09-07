@@ -21,6 +21,13 @@ export function useGetCafeById(id: string) {
   })
 }
 
+export function useGetBank() {
+  return useQuery({
+    queryKey: ["bank"],
+    queryFn: cafeAPI.listBank,
+  })
+}
+
 export function useCreateCafe() {
   const queryClient = useQueryClient()
 

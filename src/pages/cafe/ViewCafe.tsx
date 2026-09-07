@@ -104,7 +104,7 @@ export const CafeProfile = ({ data }: { data: TCafeProfile }) => {
           <DetailRow
             icon={<Landmark size={16} />}
             label="Bank"
-            value={data.bank}
+            value={data.bank.name}
           />
           <DetailRow
             icon={<Wallet size={16} />}

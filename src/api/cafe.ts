@@ -19,9 +19,20 @@ export const cafeAPI = {
 
   updateCafe: ({ ...cafe }: UpdateCafeInput & { id: string }) =>
     api.post<UpdatedCafeRes>(`/cafe/${cafe.id}`, cafe).then((r) => r.data),
+
+  listBank: () => api.get<Bank[]>("/lookup/bank").then((res) => res.data),
 }
 
-export type BulkCafeUploadRes = { created: number; total: number; message: string }
+export type Bank = {
+  code: string
+  name: string
+}
+
+export type BulkCafeUploadRes = {
+  created: number
+  total: number
+  message: string
+}
 
 export type CreateCafeInput = {
   cafeId: string
@@ -29,7 +40,7 @@ export type CreateCafeInput = {
   owner_name: string
   account_no: string
   no_tel: string
-  bank: string
+  bank_code: string
   start: string
   end: string
   premise: string
@@ -42,7 +53,7 @@ export type UpdateCafeInput = {
   cafe_name: string
   owner_name: string
   account_no: string
-  bank: string
+  bank_code: string
   no_tel?: string | undefined
   premise?: string | undefined
   registerNo?: string | undefined
@@ -67,7 +78,8 @@ export type Cafe = {
   owner_name: string
   account_no: string
   no_tel: string | null
-  bank: string
+  bank: Bank
+  bank_code: string
   premise: string | null
   registerNo: string | null
   start: Date | null
