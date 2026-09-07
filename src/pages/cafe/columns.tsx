@@ -127,7 +127,7 @@ export const columns = ({ suspend, update }: Meta): ColumnDef<Cafe>[] => [
         })
       }
 
-      const updateCafe = ({ cafeId: _cafeId, ...input }: CreateCafeInput) => {
+      const updateCafe = ({ ...input }: CreateCafeInput) => {
         update.mutate(
           { ...input, id },
           {
