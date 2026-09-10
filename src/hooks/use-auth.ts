@@ -24,6 +24,7 @@ export function useSuspendUser() {
       // optional: invalidate/refresh user lists or detail views
       queryClient.invalidateQueries({ queryKey: ["student"] })
       queryClient.invalidateQueries({ queryKey: ["cafe"] })
+      queryClient.invalidateQueries({ queryKey: ["staff"] })
 
       toast(data.message)
     },

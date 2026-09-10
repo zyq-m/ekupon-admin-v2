@@ -12,6 +12,9 @@ import { StudentPage } from "@/pages/student"
 import { ImportStudent } from "@/pages/student/ImportStudent"
 import { StudentListPage } from "@/pages/student/StudentListPage"
 import ViewTfStudentPage from "@/pages/student/ViewTfPage"
+import { StaffPage } from "@/pages/staff"
+import { StaffListPage } from "@/pages/staff/StaffListPage"
+import { ImportStaff } from "@/pages/staff/ImportStaff"
 import { TransactionPage } from "@/pages/TransactionPage"
 import { Navigate, type RouteObject } from "react-router-dom"
 
@@ -41,6 +44,14 @@ export const AppRoutes: RouteObject[] = [
         ],
       },
       { path: "transaction", element: <TransactionPage /> },
+      {
+        path: "staff",
+        element: <StaffPage />,
+        children: [
+          { path: "", element: <StaffListPage /> },
+          { path: "import", element: <ImportStaff /> },
+        ],
+      },
       {
         path: "coupon",
         element: <CouponPage />,

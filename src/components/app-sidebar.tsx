@@ -26,6 +26,7 @@ import {
   LogOut,
   Ticket,
   User2,
+  UserCog,
 } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 
@@ -49,6 +50,14 @@ const menuItems: MenuItem[] = [
     children: [
       { title: "Search Student", url: "/ekupon-admin/student" },
       { title: "Import Student", url: "/ekupon-admin/student/import" },
+    ],
+  },
+  {
+    title: "Staff",
+    icon: UserCog,
+    children: [
+      { title: "Search Staff", url: "/ekupon-admin/staff" },
+      { title: "Import Staff", url: "/ekupon-admin/staff/import" },
     ],
   },
   { title: "Cafe", icon: Coffee, url: "/ekupon-admin/cafe", children: [] },
