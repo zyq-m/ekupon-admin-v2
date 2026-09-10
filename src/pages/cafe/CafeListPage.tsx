@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/tooltip"
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useGetCafe, useCreateCafe, useUpdateCafe } from "@/hooks/use-cafe"
-import { Plus } from "lucide-react"
+import { formatDate } from "@/lib/utils"
+import { Download, Plus } from "lucide-react"
 import { useState } from "react"
+import * as XLSX from "xlsx"
 import { columns } from "./columns"
 
 export function CafeListPage() {
@@ -19,6 +21,28 @@ export function CafeListPage() {
   const create = useCreateCafe()
 
   const [open, setOpen] = useState(false)
+
+  const downloadExcel = () => {
+    const rows =
+      data?.map((cafe) => ({
+        "Cafe Name": cafe.cafe_name,
+        Owner: cafe.owner_name,
+        "No. Tel": cafe.no_tel ?? "",
+        Bank: cafe.bank.name,
+        "Account No.": cafe.account_no,
+        Status: cafe.user.is_active ? "Active" : "Suspended",
+        Premise: cafe.premise ?? "",
+        "Register No.": cafe.registerNo ?? "",
+        Start: cafe.start ? formatDate(cafe.start) : "",
+        End: cafe.end ? formatDate(cafe.end) : "",
+        "Total Earned": cafe.total_earn,
+      })) ?? []
+
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet(rows)
+    XLSX.utils.book_append_sheet(wb, ws, "Cafes")
+    XLSX.writeFile(wb, "cafes.xlsx")
+  }
 
   return (
     <div>
@@ -36,6 +60,17 @@ export function CafeListPage() {
           </TooltipTrigger>
           <TooltipContent>
             <p>Add new cafe</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={downloadExcel} disabled={!data?.length}>
+              <Download />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Download Excel</p>
           </TooltipContent>
         </Tooltip>
 
