@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select"
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useDebounce } from "@/hooks/use-debounce"
-import { useStaffSearch } from "@/hooks/use-staff"
+import { useGetPtj, useStaffSearch } from "@/hooks/use-staff"
 import { staffCol } from "@/pages/staff/columns"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AlertCircle, Search } from "lucide-react"
@@ -218,9 +218,13 @@ export function EditStaffForm({
   staff: TStaff
   onSave: (data: InputStaff) => void
 }) {
+  const { data: ptjList } = useGetPtj()
   const [name, setName] = useState(staff.name)
   const [email, setEmail] = useState(staff.email)
   const [noStaff, setNoStaff] = useState(staff.no_staff)
+  const [ptjId, setPtjId] = useState(
+    ptjList?.find((p) => p.ptj === staff.ptj?.ptj)?.id ?? undefined
+  )
 
   return (
     <form
@@ -230,6 +234,7 @@ export function EditStaffForm({
           name,
           email,
           no_staff: noStaff,
+          ptj_id: ptjId,
           userId: staff.user_id,
         })
       }}
@@ -258,6 +263,24 @@ export function EditStaffForm({
             value={noStaff}
             onChange={(e) => setNoStaff(e.target.value)}
           />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor="edit-staff-ptj">PTJ</FieldLabel>
+          <Select
+            value={ptjId?.toString() ?? undefined}
+            onValueChange={(v) => setPtjId(Number(v))}
+          >
+            <SelectTrigger id="edit-staff-ptj" className="w-full">
+              <SelectValue placeholder="Select a PTJ" />
+            </SelectTrigger>
+            <SelectContent>
+              {ptjList?.map((ptj) => (
+                <SelectItem key={ptj.id} value={ptj.id.toString()}>
+                  {ptj.ptj}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Field>
       </FieldGroup>
       <DialogFooter className="mt-4">

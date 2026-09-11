@@ -15,6 +15,7 @@ import ViewTfStudentPage from "@/pages/student/ViewTfPage"
 import { StaffPage } from "@/pages/staff"
 import { StaffListPage } from "@/pages/staff/StaffListPage"
 import { ImportStaff } from "@/pages/staff/ImportStaff"
+import ViewStaff from "@/pages/staff/ViewStaff"
 import { TransactionPage } from "@/pages/TransactionPage"
 import { Navigate, type RouteObject } from "react-router-dom"
 
@@ -50,6 +51,7 @@ export const AppRoutes: RouteObject[] = [
         children: [
           { path: "", element: <StaffListPage /> },
           { path: "import", element: <ImportStaff /> },
+          { path: ":email", element: <ViewStaff /> },
         ],
       },
       {

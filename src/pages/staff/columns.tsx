@@ -1,5 +1,10 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import type { StaffUploadComparison, TStaff } from "@/api/staff"
+import type {
+  StaffProfile,
+  StaffUploadComparison,
+  TfStaff,
+  TStaff,
+} from "@/api/staff"
 import ActionDropdown from "@/components/action-dropdown"
 import {
   EditStaffForm,
@@ -20,9 +25,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useUpdateStaff } from "@/hooks/use-staff"
-import { cn } from "@/lib/utils"
+import { cn, formatDate, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
+import dayjs from "dayjs"
 import { useState } from "react"
+import { Link } from "react-router-dom"
 import { toast } from "sonner"
 
 type Meta = {
@@ -117,7 +124,10 @@ export const comparisonStaffCol = (
             setIsOpen={setOpen}
             staff={staff}
             onSave={(updated) => {
-              updateStaffData(row.original, updated)
+              updateStaffData(row.original, {
+                ...updated,
+                ptj: staff.uploaded.ptj,
+              })
               toast.success("Staff updated")
             }}
           />
@@ -204,6 +214,11 @@ export const staffCol = ({ suspend }: Meta): ColumnDef<TStaff>[] => [
       return (
         <>
           <ActionDropdown>
+            <DropdownMenuItem asChild>
+              <Link to={`/ekupon-admin/staff/${row.original.email}`}>
+                View
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={() => setOpen(true)}>
               Edit
             </DropdownMenuItem>
@@ -242,5 +257,54 @@ export const staffCol = ({ suspend }: Meta): ColumnDef<TStaff>[] => [
         </>
       )
     },
+  },
+]
+
+export const staffTfCol: ColumnDef<TfStaff>[] = [
+  {
+    id: "cafe_name",
+    accessorFn: ({ cafe }) => cafe.cafe_name,
+    header: "Recipient",
+  },
+  {
+    accessorKey: "amount",
+    header: ({ column }) => <SortableHeader column={column} title="Amount" />,
+    cell: ({ row }) => <div>{formatRM(row.original.amount)}</div>,
+  },
+  {
+    accessorKey: "timestamp",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="Date & Time" />
+    ),
+    cell: ({ row }) => (
+      <div>{dayjs(row.original.timestamp).format("DD/MM/YYYY hh:mm a")}</div>
+    ),
+  },
+]
+
+export const staffCouponCol: ColumnDef<StaffProfile["coupons"][0]>[] = [
+  {
+    id: "fund_name",
+    accessorFn: ({ fund }) => fund.name,
+    header: "Fund / Coupon",
+  },
+  {
+    id: "initAmount",
+    accessorFn: ({ fund }) => fund.amount,
+    header: ({ column }) => (
+      <SortableHeader column={column} title="Initial Amount" />
+    ),
+    cell: ({ row }) => <div>{formatRM(row.original.fund.amount)}</div>,
+  },
+  {
+    accessorKey: "balance",
+    header: ({ column }) => <SortableHeader column={column} title="Balance" />,
+    cell: ({ row }) => <div>{formatRM(row.original.balance)}</div>,
+  },
+  {
+    id: "expired",
+    accessorFn: ({ fund }) => fund.expired,
+    header: ({ column }) => <SortableHeader column={column} title="Expired" />,
+    cell: ({ row }) => <div>{formatDate(row.original.fund.expired)}</div>,
   },
 ]

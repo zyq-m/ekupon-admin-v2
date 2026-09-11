@@ -7,6 +7,29 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import type { AxiosError } from "axios"
 import { toast } from "sonner"
 
+export function useGetPtj() {
+  return useQuery({
+    queryKey: ["ptj"],
+    queryFn: staffAPI.listPtj,
+  })
+}
+
+export function useGetStaffProfile(email: string) {
+  return useQuery({
+    queryKey: ["staff", email],
+    queryFn: () => staffAPI.getStaffProfile(email),
+    enabled: !!email,
+  })
+}
+
+export function useGetStaffTf(email: string) {
+  return useQuery({
+    queryKey: ["transaction", "staff", email],
+    queryFn: () => staffAPI.getStaffTf(email),
+    enabled: !!email,
+  })
+}
+
 export function useCheckStaffUpload() {
   return useMutation({
     mutationFn: (formData: FormData) => staffAPI.checkFile(formData),
