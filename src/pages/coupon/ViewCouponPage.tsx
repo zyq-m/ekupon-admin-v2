@@ -29,7 +29,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useSuspendUser } from "@/hooks/use-auth"
 import { useGetCafe } from "@/hooks/use-cafe"
 import { useGetFundById } from "@/hooks/use-fund"
 import { useCreateBulkTransaction } from "@/hooks/use-transaction"
@@ -96,7 +95,6 @@ export function ViewCouponPage() {
   }, [id])
 
   const { data, isLoading } = useGetFundById(fundId)
-  const suspend = useSuspendUser()
   const { data: cafes } = useGetCafe()
   const createBulk = useCreateBulkTransaction()
 
@@ -153,7 +151,7 @@ export function ViewCouponPage() {
         <TableSkeleton />
       ) : (
         <DataTable
-          columns={columns({ suspend })}
+          columns={columns()}
           data={data?.coupons || []}
           colName="name"
           placeholder="Name"

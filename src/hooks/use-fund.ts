@@ -1,6 +1,7 @@
 import {
   fundAPI,
   type BalanceManyInput,
+  type CouponStatusInput,
   type Fund,
   type FundInput,
 } from "@/api/fund"
@@ -78,6 +79,25 @@ export function useUpdateBalanceMany() {
       const message =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message || "Failed to update coupon balances"
+      toast.error(message)
+    },
+  })
+}
+
+export function useSetCouponStatus() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (body: CouponStatusInput) => fundAPI.setCouponStatus(body),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["student"] })
+      queryClient.invalidateQueries({ queryKey: ["staff"] })
+      queryClient.invalidateQueries({ queryKey: ["fund"] })
+    },
+    onError: (err) => {
+      const message =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Failed to update coupon status"
       toast.error(message)
     },
   })

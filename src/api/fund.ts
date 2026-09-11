@@ -20,6 +20,7 @@ export type FundSummary = Fund & {
   coupons: {
     id: number
     balance: number
+    is_active: boolean
     student: {
       name: string
       ic_no: string
@@ -51,12 +52,26 @@ export type BalanceManyRes = {
   count: number
 }
 
+export type CouponStatusInput = {
+  type: "student" | "staff"
+  id: number
+  is_active: boolean
+}
+
+export type CouponStatusRes = {
+  id: number
+  is_active: boolean
+}
+
 export const fundAPI = {
   // List
   fundList: () => api.get<Fund[]>("/fund").then((r) => r.data),
 
   updateBalanceMany: (body: BalanceManyInput) =>
     api.post<BalanceManyRes>("/fund/balance-many", body).then((r) => r.data),
+
+  setCouponStatus: (body: CouponStatusInput) =>
+    api.post<CouponStatusRes>("/fund/coupon-status", body).then((r) => r.data),
 
   // Detail
   fund: (fundId?: number) =>

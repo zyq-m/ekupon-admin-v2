@@ -24,6 +24,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { useSuspendUser } from "@/hooks/use-auth"
+import { useSetCouponStatus } from "@/hooks/use-fund"
 import { useUpdateStaff } from "@/hooks/use-staff"
 import { cn, formatDate, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -306,5 +307,38 @@ export const staffCouponCol: ColumnDef<StaffProfile["coupons"][0]>[] = [
     accessorFn: ({ fund }) => fund.expired,
     header: ({ column }) => <SortableHeader column={column} title="Expired" />,
     cell: ({ row }) => <div>{formatDate(row.original.fund.expired)}</div>,
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const coupon = row.original
+      const isActive = coupon.is_active
+      const status = useSetCouponStatus()
+
+      return (
+        <ActionDropdown>
+          <DropdownMenuItem
+            variant={isActive ? "destructive" : "default"}
+            onClick={() =>
+              status.mutate(
+                {
+                  type: "staff",
+                  id: coupon.id,
+                  is_active: !isActive,
+                },
+                {
+                  onSuccess: () =>
+                    toast.success(
+                      isActive ? "Coupon deactivated" : "Coupon activated"
+                    ),
+                }
+              )
+            }
+          >
+            {isActive ? "Deactivate" : "Activate Coupon"}
+          </DropdownMenuItem>
+        </ActionDropdown>
+      )
+    },
   },
 ]

@@ -24,6 +24,7 @@ import {
   useVoidDirectedTf,
 } from "@/hooks/use-transaction"
 import { formatNumber, formatRM } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 import { BadgeDollarSign, Receipt, Search, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { cafeTransactionCol } from "./cafe/columns"
@@ -41,7 +42,10 @@ export function TransactionPage() {
   const directedQuery = useGetDirectedTf(tfPayload)
   const voidMutation = useVoidDirectedTf()
 
-  const data = mode === "normal" ? cafeQuery.data : directedQuery.data
+  const data =
+    mode === "normal"
+      ? cafeQuery.data
+      : directedQuery.data?.transactions
   const refetch = mode === "normal" ? cafeQuery.refetch : directedQuery.refetch
 
   const onFilter = (newFilter: Partial<TfParams>) => {
@@ -138,6 +142,13 @@ export function TransactionPage() {
               <Search />
             </Button>
           </TableTooltipsBtn>
+
+          {mode === "directed" &&
+            (directedQuery.data?.skippedInactive ?? 0) > 0 && (
+              <Badge variant="secondary">
+                {directedQuery.data?.skippedInactive} inactive coupon(s) skipped
+              </Badge>
+            )}
 
           <TransactionReportTable data={data} tfPayload={tfPayload} />
         </div>

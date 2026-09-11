@@ -86,6 +86,7 @@ export type Student = {
     ic_no: string | null
     id: number
     balance: number
+    is_active: boolean
     fund_id: number
     fund: Fund
   }[]

@@ -78,6 +78,7 @@ export default function ViewTfStudentPage() {
 }
 
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import {
   CreditCard,
@@ -88,8 +89,12 @@ import {
   Wallet,
 } from "lucide-react"
 import { useState } from "react"
+import { useSuspendUser } from "@/hooks/use-auth"
 
 export const StudentProfile = ({ data }: { data: any }) => {
+  const suspend = useSuspendUser()
+  const isActive = data.user?.is_active
+
   return (
     <Card className="w-full">
       <CardContent className="space-y-4">
@@ -106,9 +111,23 @@ export const StudentProfile = ({ data }: { data: any }) => {
               </p>
             </div>
           </div>
-          <Badge variant={data.user?.is_active ? "default" : "destructive"}>
-            {data.user?.is_active ? "Active" : "Suspended"}
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant={isActive ? "default" : "destructive"}>
+              {isActive ? "Active" : "Suspended"}
+            </Badge>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                suspend.mutate({
+                  id: data.user_id,
+                  active: !isActive,
+                })
+              }
+            >
+              {isActive ? "Suspend" : "Activate"}
+            </Button>
+          </div>
         </div>
 
         {/* Info Grid */}

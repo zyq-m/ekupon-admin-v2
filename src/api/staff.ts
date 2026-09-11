@@ -118,6 +118,7 @@ export type StaffProfile = {
     email: string
     id: number
     balance: number
+    is_active: boolean
     fund_id: number
   }[]
   email: string
@@ -125,6 +126,9 @@ export type StaffProfile = {
   user_id: number
   no_staff: string
   ptj_id: number
+  user: {
+    is_active: boolean
+  }
 }
 
 export type StaffTfSender = {

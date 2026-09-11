@@ -4,19 +4,18 @@ import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
 import { SortableHeader } from "@/components/sortable-header"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu"
-import { useSuspendUser } from "@/hooks/use-auth"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { useSetCouponStatus } from "@/hooks/use-fund"
 import { cn, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { toast } from "sonner"
 
 export type CouponRow = {
   id: number
   balance: number
+  is_active: boolean
   student: {
     name: string
     ic_no: string
@@ -28,11 +27,7 @@ export type CouponRow = {
   } | null
 }
 
-type Meta = {
-  suspend: ReturnType<typeof useSuspendUser>
-}
-
-export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
+export const columns = (): ColumnDef<CouponRow>[] => [
   {
     id: "select",
     header: ({ table }) => (
@@ -81,10 +76,12 @@ export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
     cell: ({ row }) => <div>{formatRM(row.original.balance)}</div>,
   },
   {
-    accessorKey: "student.user.is_active",
-    header: ({ column }) => <SortableHeader column={column} title="Status" />,
+    accessorKey: "is_active",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="Coupon Status" />
+    ),
     cell: ({ row }) => {
-      const isActive = row.original.student?.user.is_active
+      const isActive = row.original.is_active
       return (
         <Badge
           className={cn(
@@ -93,7 +90,7 @@ export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
               : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
           )}
         >
-          {isActive ? "Active" : "Suspended"}
+          {isActive ? "Active" : "Inactive"}
         </Badge>
       )
     },
@@ -102,15 +99,25 @@ export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
     id: "actions",
     cell: ({ row }) => {
       const coupon = row.original
-      const isActive = coupon.student?.user.is_active
+      const couponActive = coupon.is_active
       const [open, setOpen] = useState(false)
+      const status = useSetCouponStatus()
 
-      const onSuspend = () => {
-        if (!coupon.student) return
-        suspend.mutate({
-          id: coupon.student.user_id,
-          active: !isActive,
-        })
+      const onToggleCoupon = () => {
+        status.mutate(
+          {
+            type: coupon.student ? "student" : "staff",
+            id: coupon.id,
+            is_active: !couponActive,
+          },
+          {
+            onSuccess: () => {
+              toast.success(
+                couponActive ? "Coupon deactivated" : "Coupon activated"
+              )
+            },
+          }
+        )
       }
 
       return (
@@ -126,13 +133,11 @@ export const columns = ({ suspend }: Meta): ColumnDef<CouponRow>[] => [
               Edit
             </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
-
             <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onSuspend}
+              variant={couponActive ? "destructive" : "default"}
+              onClick={onToggleCoupon}
             >
-              {isActive ? "Suspend" : "Activate"}
+              {couponActive ? "Deactivate" : "Activate Coupon"}
             </DropdownMenuItem>
           </ActionDropdown>
 
