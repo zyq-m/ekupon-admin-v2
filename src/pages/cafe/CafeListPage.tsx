@@ -9,7 +9,9 @@ import {
 import { useSuspendUser } from "@/hooks/use-auth"
 import { useGetCafe, useCreateCafe, useUpdateCafe } from "@/hooks/use-cafe"
 import { formatDate } from "@/lib/utils"
-import { Download, Plus } from "lucide-react"
+import { Download, Plus, QrCode } from "lucide-react"
+import JSZip from "jszip"
+import QRCode from "qrcode"
 import { useState } from "react"
 import * as XLSX from "xlsx"
 import { columns } from "./columns"
@@ -21,6 +23,8 @@ export function CafeListPage() {
   const create = useCreateCafe()
 
   const [open, setOpen] = useState(false)
+
+  const activeCafes = data?.filter((cafe) => cafe.user.is_active)
 
   const downloadExcel = () => {
     const rows =
@@ -42,6 +46,34 @@ export function CafeListPage() {
     const ws = XLSX.utils.json_to_sheet(rows)
     XLSX.utils.book_append_sheet(wb, ws, "Cafes")
     XLSX.writeFile(wb, "cafes.xlsx")
+  }
+
+  const downloadQr = async () => {
+    if (!activeCafes?.length) return
+
+    const zip = new JSZip()
+    const folder = zip.folder("cafe-qr") ?? zip
+
+    for (const cafe of activeCafes) {
+      const dataUrl = await QRCode.toDataURL(`${import.meta.env.VITE_API_URL}/?id=${cafe.id}`, {
+        width: 512,
+        margin: 2,
+      })
+      const base64 = dataUrl.split(",")[1]
+      folder.file(
+        `${cafe.cafe_name.replace(/[\\/:*?"<>|]+/g, "_")}.png`,
+        base64,
+        { base64: true }
+      )
+    }
+
+    const blob = await zip.generateAsync({ type: "blob" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = "cafe-qr.zip"
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   return (
@@ -71,6 +103,17 @@ export function CafeListPage() {
           </TooltipTrigger>
           <TooltipContent>
             <p>Download Excel</p>
+          </TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button onClick={downloadQr} disabled={!activeCafes?.length}>
+              <QrCode />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>Download QR (active cafes)</p>
           </TooltipContent>
         </Tooltip>
 
