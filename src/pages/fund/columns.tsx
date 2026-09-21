@@ -44,6 +44,13 @@ export const columns: ColumnDef<Fund>[] = [
     ),
   },
   {
+    accessorKey: "pc_code",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="PC Code" />
+    ),
+    cell: ({ row }) => <div>{row.original.pc_code || "—"}</div>,
+  },
+  {
     accessorKey: "amount",
     header: ({ column }) => (
       <SortableHeader column={column} title="Initial Amount" />

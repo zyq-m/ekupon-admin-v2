@@ -79,6 +79,7 @@ const formSchema = z.object({
   amount: z.number().min(0, "Amount must be >= 0"),
   limit_spend: z.number().min(0, "Limit per day must be >= 0"),
   limit_per_tf: z.number().min(0, "Limit per transaction must be >= 0"),
+  pc_code: z.string(),
 })
 
 type FundFormValues = z.infer<typeof formSchema>
@@ -94,12 +95,21 @@ export function FundForm({ children, data, onSubmit }: Form) {
           amount: data.amount,
           limit_spend: data.limit_spend,
           limit_per_tf: data.limit_per_tf,
+          pc_code: data.pc_code ?? "",
         }
       : undefined,
   })
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <form
+      onSubmit={form.handleSubmit((values) =>
+        onSubmit({
+          ...values,
+          pc_code: values.pc_code.trim() || null,
+        })
+      )}
+      className="space-y-6"
+    >
       <FieldGroup>
         <Controller
           name="name"
@@ -112,6 +122,24 @@ export function FundForm({ children, data, onSubmit }: Form) {
                 id="fund-name"
                 aria-invalid={fieldState.invalid}
                 autoComplete="off"
+              />
+              {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+
+        <Controller
+          name="pc_code"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid}>
+              <FieldLabel htmlFor="pc_code">PC Code</FieldLabel>
+              <Input
+                {...field}
+                id="pc_code"
+                aria-invalid={fieldState.invalid}
+                autoComplete="off"
+                placeholder="e.g. TEST-PC-CODE-123"
               />
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>

@@ -11,6 +11,7 @@ export type Fund = {
   limit_spend: number
   limit_per_tf: number
   setup_by: string
+  pc_code: string | null
 }
 
 export type FundSummary = Fund & {
@@ -41,6 +42,7 @@ export type FundInput = {
   amount: number
   limit_spend: number
   limit_per_tf: number
+  pc_code?: string | null
 }
 
 export type BalanceManyInput = {
