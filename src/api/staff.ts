@@ -75,7 +75,7 @@ export interface StaffUploadComparison {
     email: string
     no_staff: string
     ptj: string
-    balance: number
+    balance?: number
   }
   exists: boolean
   existing: {
