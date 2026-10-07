@@ -39,7 +39,7 @@ import { useEffect, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useParams } from "react-router-dom"
 import { z } from "zod"
-import { columns } from "./columns"
+import { columns, staffColumns } from "./columns"
 
 const transFormSchema = z.object({
   cafeId: z.string().min(1, "Cafe is required"),
@@ -145,48 +145,77 @@ export function ViewCouponPage() {
 
   return (
     <div className="space-y-6">
-      {isLoading ? <SummarySkeleton /> : data && <FundSummaryCards {...data} />}
+      <section className="space-y-6">
+        {isLoading ? (
+          <SummarySkeleton />
+        ) : (
+          data && <FundSummaryCards {...data} />
+        )}
 
-      {isLoading ? (
-        <TableSkeleton />
-      ) : (
-        <DataTable
-          columns={columns()}
-          data={data?.coupons || []}
-          colName="name"
-          placeholder="Name"
-          selectionActions={(selected, resetSelection) => {
-            resetSelectionRef.current = resetSelection
-            return (
-              <>
-                <Button
-                  variant={"secondary"}
-                  onClick={() => {
-                    setSelectedStudents(selected)
-                    setBulkAmountOpen(true)
-                  }}
-                >
-                  Update balance
-                </Button>
-                <Button
-                  variant={"secondary"}
-                  onClick={() => {
-                    setSelectedStudents(selected)
-                    setSheetOpen(true)
-                  }}
-                >
-                  <CirclePlus />
-                  Create {selected.length} transactions
-                </Button>
-              </>
-            )
-          }}
-        >
-          <div className="flex gap-2">
-            <SelectFunds value={data?.name} onValueChange={setFundId} />
-          </div>
-        </DataTable>
-      )}
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          !data?.staffCoupons.length &&
+          data?.coupons && (
+            <DataTable
+              columns={columns()}
+              data={data.coupons}
+              colName="name"
+              placeholder="Name"
+              selectionActions={(selected, resetSelection) => {
+                resetSelectionRef.current = resetSelection
+                return (
+                  <>
+                    <Button
+                      variant={"secondary"}
+                      onClick={() => {
+                        setSelectedStudents(selected)
+                        setBulkAmountOpen(true)
+                      }}
+                    >
+                      Update balance
+                    </Button>
+                    <Button
+                      variant={"secondary"}
+                      onClick={() => {
+                        setSelectedStudents(selected)
+                        setSheetOpen(true)
+                      }}
+                    >
+                      <CirclePlus />
+                      Create {selected.length} transactions
+                    </Button>
+                  </>
+                )
+              }}
+            >
+              <div className="flex gap-2">
+                <SelectFunds value={data?.name} onValueChange={setFundId} />
+              </div>
+            </DataTable>
+          )
+        )}
+      </section>
+
+      <section className="space-y-6">
+        {isLoading ? (
+          <TableSkeleton />
+        ) : (
+          data?.staffCoupons &&
+          !data.coupons.length && (
+            <DataTable
+              columns={staffColumns()}
+              data={data.staffCoupons}
+              colName="name"
+              placeholder="Name"
+            >
+              <div className="flex gap-2">
+                <SelectFunds value={data?.name} onValueChange={setFundId} />
+              </div>
+            </DataTable>
+          )
+        )}
+      </section>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="sm:max-w-md">

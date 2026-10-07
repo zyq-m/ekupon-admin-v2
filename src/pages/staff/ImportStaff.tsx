@@ -131,6 +131,7 @@ export function ImportStaff() {
       Email: s.uploaded.email,
       "No Staff": s.uploaded.no_staff,
       PTJ: s.uploaded.ptj,
+      Balance: s.uploaded.balance,
     }))
     const ws = XLSX.utils.json_to_sheet(rows)
     XLSX.utils.book_append_sheet(wb, ws, "Staff")

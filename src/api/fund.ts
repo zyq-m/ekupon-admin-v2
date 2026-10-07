@@ -32,6 +32,27 @@ export type FundSummary = Fund & {
       }
     } | null
   }[]
+  staffCoupons: {
+    id: number
+    balance: number
+    is_active: boolean
+    staff: {
+      email: string
+      user_id: string
+      no_staff: string
+      ptj_id: number
+      name: string
+      user: {
+        is_active: boolean
+      }
+    }
+  }[]
+  staffAggregate: {
+    count: number
+    totalFund: number
+    totalExpenses: number
+    balance: number
+  }
 }
 
 // DTO for create/update; match your backend /fund POST/PUT body

@@ -4,7 +4,7 @@ import { formatRM } from "@/lib/utils"
 import { Landmark, TrendingUp, Wallet } from "lucide-react"
 
 export function FundSummaryCards(props: FundSummary) {
-  const { totalFund, totalExpenses, balance } = props
+  const { totalFund, totalExpenses, balance, staffAggregate } = props
 
   return (
     <div className="space-y-4">
@@ -17,7 +17,7 @@ export function FundSummaryCards(props: FundSummary) {
         />
         <MetricCard
           title="Total Expense"
-          value={formatRM(totalExpenses)}
+          value={formatRM(totalExpenses ?? staffAggregate.totalExpenses)}
           icon={<TrendingUp className="h-4 w-4 text-muted-foreground" />}
         />
         <MetricCard

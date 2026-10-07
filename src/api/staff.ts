@@ -8,9 +8,7 @@ export const staffAPI = {
     api.get<StaffProfile>(`/staff/${email}`).then((r) => r.data),
 
   getStaffTf: (email: string) =>
-    api
-      .get<StaffTfRes>(`/transaction/staff/${email}`)
-      .then((r) => r.data),
+    api.get<StaffTfRes>(`/transaction/staff/${email}`).then((r) => r.data),
 
   listPtj: () => api.get<Ptj[]>("/lookup/ptj").then((r) => r.data),
 
@@ -77,6 +75,7 @@ export interface StaffUploadComparison {
     email: string
     no_staff: string
     ptj: string
+    balance: number
   }
   exists: boolean
   existing: {

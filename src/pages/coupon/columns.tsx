@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import type { FundSummary } from "@/api/fund"
 import ActionDropdown from "@/components/action-dropdown"
+import { BulkCouponAmountDialog } from "@/components/form/bulk-coupon-amount-form"
 import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
 import { SortableHeader } from "@/components/sortable-header"
 import { Badge } from "@/components/ui/badge"
@@ -26,6 +28,8 @@ export type CouponRow = {
     }
   } | null
 }
+
+export type StaffCouponRow = FundSummary["staffCoupons"][0]
 
 export const columns = (): ColumnDef<CouponRow>[] => [
   {
@@ -149,6 +153,104 @@ export const columns = (): ColumnDef<CouponRow>[] => [
               id: coupon.id,
               balance: coupon.balance,
             }}
+          />
+        </>
+      )
+    },
+  },
+]
+
+export const staffColumns = (): ColumnDef<StaffCouponRow>[] => [
+  {
+    id: "name",
+    accessorFn: (row) => row.staff.name,
+    header: ({ column }) => <SortableHeader column={column} title="Name" />,
+  },
+  {
+    id: "email",
+    accessorFn: (row) => row.staff.email,
+    header: ({ column }) => <SortableHeader column={column} title="Email" />,
+  },
+  {
+    id: "no_staff",
+    accessorFn: (row) => row.staff.no_staff,
+    header: ({ column }) => (
+      <SortableHeader column={column} title="No Staff" />
+    ),
+  },
+  {
+    accessorKey: "balance",
+    header: ({ column }) => <SortableHeader column={column} title="Balance" />,
+    cell: ({ row }) => <div>{formatRM(row.original.balance)}</div>,
+  },
+  {
+    accessorKey: "is_active",
+    header: ({ column }) => (
+      <SortableHeader column={column} title="Coupon Status" />
+    ),
+    cell: ({ row }) => {
+      const isActive = row.original.is_active
+      return (
+        <Badge
+          className={cn(
+            isActive
+              ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300"
+              : "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300"
+          )}
+        >
+          {isActive ? "Active" : "Inactive"}
+        </Badge>
+      )
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const coupon = row.original
+      const isActive = coupon.is_active
+      const [open, setOpen] = useState(false)
+      const status = useSetCouponStatus()
+
+      const onToggleCoupon = () => {
+        status.mutate(
+          {
+            type: "staff",
+            id: coupon.id,
+            is_active: !isActive,
+          },
+          {
+            onSuccess: () =>
+              toast.success(isActive ? "Coupon deactivated" : "Coupon activated"),
+          }
+        )
+      }
+
+      return (
+        <>
+          <ActionDropdown>
+            <DropdownMenuItem asChild>
+              <Link to={`/ekupon-admin/staff/${coupon.staff.email}`}>
+                View
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem onClick={() => setOpen(true)}>
+              Edit
+            </DropdownMenuItem>
+
+            <DropdownMenuItem
+              variant={isActive ? "destructive" : "default"}
+              onClick={onToggleCoupon}
+            >
+              {isActive ? "Deactivate" : "Activate Coupon"}
+            </DropdownMenuItem>
+          </ActionDropdown>
+
+          <BulkCouponAmountDialog
+            open={open}
+            onOpenChange={setOpen}
+            coupons={[{ id: coupon.id }]}
+            studentCount={1}
           />
         </>
       )
