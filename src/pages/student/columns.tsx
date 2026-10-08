@@ -120,7 +120,10 @@ export const comparisonCol = (
             setIsOpen={setOpen}
             student={student}
             onSave={(updated) => {
-              updateStudentData(row.original, updated)
+              updateStudentData(row.original, {
+                ...row.original.uploaded,
+                ...updated,
+              })
               toast.success("Student updated")
             }}
           />
