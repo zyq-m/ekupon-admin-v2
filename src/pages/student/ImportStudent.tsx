@@ -140,6 +140,7 @@ export function ImportStudent() {
       Name: s.uploaded.name,
       "Matric No.": s.uploaded.matric_no,
       "IC No.": s.uploaded.ic_no,
+      Balance: s.uploaded.balance,
     }))
     const ws = XLSX.utils.json_to_sheet(rows)
     XLSX.utils.book_append_sheet(wb, ws, String(fundId))

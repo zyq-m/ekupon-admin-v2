@@ -107,6 +107,7 @@ export type TStudent = {
 
 export interface StudentUploadComparison {
   uploaded: {
+    balance: number
     matric_no: string
     ic_no: string
     name: string
