@@ -143,7 +143,7 @@ export function ImportStaff() {
     const formData = new FormData()
     formData.append("file", file)
     formData.append("sheet", "0")
-    formData.append("fundId", String(fundId))
+    if (fundId) formData.append("fundId", String(fundId))
 
     bulkUploadXlsx.mutate(formData, {
       onSuccess: () => {
@@ -290,9 +290,7 @@ export function ImportStaff() {
                   <AlertDialogTrigger asChild>
                     <Button
                       disabled={
-                        !fundId ||
-                        bulkUploadXlsx.isPending ||
-                        conflictedData.length > 0
+                        bulkUploadXlsx.isPending || conflictedData.length > 0
                       }
                     >
                       {bulkUploadXlsx.isPending ? "Uploading.." : "Upload"}
