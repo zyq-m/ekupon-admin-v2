@@ -15,13 +15,14 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   useBulkUploadStaff,
   useCheckStaffUpload,
   useUpdateStaff,
 } from "@/hooks/use-staff"
-import { Upload } from "lucide-react"
+import { Download, Upload } from "lucide-react"
 import { useCallback, useMemo, useState } from "react"
 import { toast } from "sonner"
 import * as XLSX from "xlsx"
@@ -32,6 +33,7 @@ export function ImportStaff() {
   const [file, setFile] = useState<File | null>(null)
   const [fundId, setFundId] = useState<number | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+  const [isIncrement, setIsIncrement] = useState(false)
   const [tableData, setTableData] = useState<StaffUploadComparison[]>([])
 
   const checkUpload = useCheckStaffUpload()
@@ -143,6 +145,7 @@ export function ImportStaff() {
     const formData = new FormData()
     formData.append("file", file)
     formData.append("sheet", "0")
+    if (isIncrement) formData.append("couponMode", "increment")
     if (fundId) formData.append("fundId", String(fundId))
 
     bulkUploadXlsx.mutate(formData, {
@@ -156,6 +159,39 @@ export function ImportStaff() {
   const onCancel = () => {
     setFile(null)
     setTableData([])
+  }
+
+  const downloadUploadedFile = () => {
+    if (!file) return
+    const url = URL.createObjectURL(file)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = file.name
+    link.click()
+    URL.revokeObjectURL(url)
+  }
+
+  const downloadExcel = () => {
+    const wb = XLSX.utils.book_new()
+    const rows = tableData.map((s) => ({
+      Name: s.uploaded.name,
+      Email: s.uploaded.email,
+      "No Staff": s.uploaded.no_staff,
+      PTJ: s.uploaded.ptj,
+      Balance: s.uploaded.balance,
+    }))
+    const ws = XLSX.utils.json_to_sheet(rows)
+    XLSX.utils.book_append_sheet(wb, ws, "Staff")
+    XLSX.writeFile(wb, "New file.xlsx")
+  }
+
+  const downloadTemplate = () => {
+    const wb = XLSX.utils.book_new()
+    const ws = XLSX.utils.json_to_sheet([
+      { Name: "", Email: "", "No Staff": "", PTJ: "", Balance: "" },
+    ])
+    XLSX.utils.book_append_sheet(wb, ws, "Staff")
+    XLSX.writeFile(wb, "staff-import-template.xlsx")
   }
 
   const conflictedData = useMemo(
@@ -184,11 +220,17 @@ export function ImportStaff() {
   return (
     <div className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <h2 className="text-lg font-semibold">Create New Staff</h2>
-          <p className="text-sm text-muted-foreground">
-            Import Excel file to register staff in bulk.
-          </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold">Create New Staff</h2>
+            <p className="text-sm text-muted-foreground">
+              Import Excel file to register staff in bulk.
+            </p>
+          </div>
+          <Button variant="outline" size="sm" onClick={downloadTemplate}>
+            <Download />
+            Excel Template
+          </Button>
         </div>
 
         <label
@@ -243,7 +285,11 @@ export function ImportStaff() {
           />
         </label>
         {file && (
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <Button variant="ghost" size="sm" onClick={downloadUploadedFile}>
+              <Download />
+              Download file
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -278,8 +324,18 @@ export function ImportStaff() {
                 placeholder="Search for Name"
               >
                 <div className="flex gap-2">
+                  <label className="flex items-center gap-2 text-sm">
+                    <Switch
+                      checked={isIncrement}
+                      onCheckedChange={setIsIncrement}
+                    />
+                    Increment coupon
+                  </label>
                   <SelectFunds onValueChange={setFundId} />
                   <FundFormTriggerBtn />
+                  <Button variant="outline" onClick={downloadExcel}>
+                    <Download />
+                  </Button>
                 </div>
               </DataTable>
               <div className="flex justify-end gap-2">
