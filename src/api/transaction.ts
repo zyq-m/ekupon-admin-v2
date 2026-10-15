@@ -1,6 +1,7 @@
 import type { Cafe } from "./cafe"
 import api from "./client"
 import type { Fund } from "./fund"
+import type { TStaff } from "./staff"
 import type { Student } from "./student"
 
 export type TfParams = {
@@ -78,7 +79,8 @@ export type TfComplete = {
   timestamp: Date
   claim_by: string | null
   cafe: Cafe
-  student: Student
+  student: Student | null
+  staff: TStaff | null
 }
 
 export type DateRange = {

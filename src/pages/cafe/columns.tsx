@@ -271,9 +271,9 @@ export const transCol: ColumnDef<TfComplete>[] = [
   },
   {
     id: "student_name",
-    accessorFn: ({ student }) => student.name,
+    accessorFn: (row) => row.student?.name ?? row.staff?.name ?? "N/A",
     header: ({ column }) => (
-      <SortableHeader column={column} title="Sender / Student" />
+      <SortableHeader column={column} title="Sender" />
     ),
   },
   {
@@ -317,7 +317,7 @@ export const cafeTfCol: ColumnDef<TfComplete>[] = [
   },
   {
     id: "student_name",
-    accessorFn: ({ student }) => student.name,
+    accessorFn: (row) => row.student?.name ?? row.staff?.name ?? "N/A",
     header: "Sender",
   },
   {

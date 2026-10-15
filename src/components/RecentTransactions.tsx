@@ -21,7 +21,7 @@ export function RecentTransactions({ data }: { data: TfComplete[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Student</TableHead>
+              <TableHead>Sender</TableHead>
               <TableHead>Amount</TableHead>
               <TableHead className="text-right">Cafe</TableHead>
             </TableRow>
@@ -30,7 +30,7 @@ export function RecentTransactions({ data }: { data: TfComplete[] }) {
             {data.map((txn) => (
               <TableRow key={txn.id}>
                 <TableCell className="font-medium">
-                  {txn.student.name}
+                  {txn.student?.name ?? txn.staff?.name ?? "N/A"}
                 </TableCell>
                 <TableCell>{formatRM(txn.amount)}</TableCell>
                 <TableCell className="text-right">
