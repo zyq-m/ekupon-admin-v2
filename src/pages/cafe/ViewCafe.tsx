@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useGetCafeById } from "@/hooks/use-cafe"
+import { useAuth } from "@/hooks/use-auth"
 import { useGetCafeByIdTf } from "@/hooks/use-transaction"
 import { formatRM } from "@/lib/utils"
 import dayjs from "dayjs"
@@ -27,6 +28,8 @@ import { cafeTfCol } from "./columns"
 
 export default function ViewCafe() {
   const { id } = useParams<{ id: string }>()
+  const { can, isSuperAdmin, admin } = useAuth()
+  const canReport = can("can_generate_report")
   const { data } = useGetCafeById(id!)
 
   const [tfPayload, setPayload] = useState<TfParams>({
@@ -39,39 +42,46 @@ export default function ViewCafe() {
     setPayload((prev) => ({ ...prev, ...newFilter }))
   }
 
+  const fundIds = new Set(admin?.funds.map((fund) => fund.id) ?? [])
+  const accessibleFunds = isSuperAdmin
+    ? data?.funds
+    : data?.funds?.filter((fund) => fundIds.has(fund.id))
+
   return (
     <div className="space-y-6">
       {data && <CafeProfile data={data} />}
-      <Tabs defaultValue="trans">
-        <TabsList variant="line">
-          <TabsTrigger value="trans">
-            <History />
-            History
-          </TabsTrigger>
-        </TabsList>
+      {canReport && (
+        <Tabs defaultValue="trans">
+          <TabsList variant="line">
+            <TabsTrigger value="trans">
+              <History />
+              History
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="trans">
-          <DataTable
-            columns={cafeTfCol}
-            colName="student_name"
-            data={tf?.transactions || []}
-            placeholder="Search for Sender"
-          >
-            <div className="flex space-x-2">
-              <ComboboxSelect
-                items={data?.funds}
-                onSelect={(e) => onFilter({ fundId: e })}
-              />
-              <DateRangeFilter onUpdate={(e) => onFilter(e)} />
-              <TableTooltipsBtn tips="Find transaction">
-                <Button onClick={() => {}}>
-                  <Search />
-                </Button>
-              </TableTooltipsBtn>
-            </div>
-          </DataTable>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="trans">
+            <DataTable
+              columns={cafeTfCol}
+              colName="student_name"
+              data={tf?.transactions || []}
+              placeholder="Search for Sender"
+            >
+              <div className="flex space-x-2">
+                <ComboboxSelect
+                  items={accessibleFunds}
+                  onSelect={(e) => onFilter({ fundId: e })}
+                />
+                <DateRangeFilter onUpdate={(e) => onFilter(e)} />
+                <TableTooltipsBtn tips="Find transaction">
+                  <Button onClick={() => {}}>
+                    <Search />
+                  </Button>
+                </TableTooltipsBtn>
+              </div>
+            </DataTable>
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   )
 }

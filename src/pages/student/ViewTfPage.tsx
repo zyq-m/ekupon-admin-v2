@@ -1,4 +1,5 @@
 import type { StudentTfParams } from "@/api/transaction"
+import type { Student } from "@/api/student"
 import DataTable from "@/components/data-table"
 import {
   Select,
@@ -8,18 +9,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { useAuth, useSuspendUser } from "@/hooks/use-auth"
 import { useGetStudentById } from "@/hooks/use-student"
 import { useGetStudentTf } from "@/hooks/use-transaction"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  CreditCard,
+  Hash,
+  History,
+  ShieldCheck,
+  User,
+  Wallet,
+} from "lucide-react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { studentCouponCol, studentTfCol } from "./columns"
-
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ViewTfStudentPage() {
   const { icNo } = useParams<StudentTfParams>()
   const [id, setFundId] = useState("")
+  const { can } = useAuth()
+  const canReport = can("can_generate_report")
   const { data: profile } = useGetStudentById(icNo!)
   const { data: tf } = useGetStudentTf({ icNo: icNo!, fundId: id! })
+
+  useEffect(() => {
+    if (!id && profile?.coupons[0]) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFundId(profile.coupons[0].fund_id.toString())
+    }
+  }, [id, profile])
 
   return (
     <div className="space-y-6">
@@ -32,10 +54,12 @@ export default function ViewTfStudentPage() {
             <Wallet />
             Coupon
           </TabsTrigger>
-          <TabsTrigger value="trans">
-            <History />
-            History
-          </TabsTrigger>
+          {canReport && (
+            <TabsTrigger value="trans">
+              <History />
+              History
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="coupon">
@@ -46,53 +70,42 @@ export default function ViewTfStudentPage() {
             placeholder="Search for Coupon"
           />
         </TabsContent>
-        <TabsContent value="trans">
-          <DataTable
-            colName="cafe_name"
-            columns={studentTfCol}
-            data={tf?.transactions || []}
-            placeholder="Search for Recipient"
-          >
-            <Select value={id} onValueChange={(e) => setFundId(e)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a Fund" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {profile?.coupons.map((coupon) => (
-                    <SelectItem
-                      key={coupon.id}
-                      value={coupon.fund_id.toString()}
-                    >
-                      {coupon.fund.name}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </DataTable>
-        </TabsContent>
+        {canReport && (
+          <TabsContent value="trans">
+            <DataTable
+              colName="cafe_name"
+              columns={studentTfCol}
+              data={tf?.transactions || []}
+              placeholder="Search for Recipient"
+            >
+              <Select value={id} onValueChange={(e) => setFundId(e)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a Fund" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {profile?.coupons.map((coupon) => (
+                      <SelectItem
+                        key={coupon.id}
+                        value={coupon.fund_id.toString()}
+                      >
+                        {coupon.fund.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </DataTable>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )
 }
 
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import {
-  CreditCard,
-  Hash,
-  History,
-  ShieldCheck,
-  User,
-  Wallet,
-} from "lucide-react"
-import { useState } from "react"
-import { useSuspendUser } from "@/hooks/use-auth"
-
-export const StudentProfile = ({ data }: { data: any }) => {
+export const StudentProfile = ({ data }: { data: Student }) => {
   const suspend = useSuspendUser()
+  const { isSuperAdmin } = useAuth()
   const isActive = data.user?.is_active
 
   return (
@@ -115,18 +128,20 @@ export const StudentProfile = ({ data }: { data: any }) => {
             <Badge variant={isActive ? "default" : "destructive"}>
               {isActive ? "Active" : "Suspended"}
             </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                suspend.mutate({
-                  id: data.user_id,
-                  active: !isActive,
-                })
-              }
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </Button>
+            {isSuperAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  suspend.mutate({
+                    id: data.user_id,
+                    active: !isActive,
+                  })
+                }
+              >
+                {isActive ? "Suspend" : "Activate"}
+              </Button>
+            )}
           </div>
         </div>
 

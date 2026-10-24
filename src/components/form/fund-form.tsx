@@ -58,6 +58,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useAuth } from "@/hooks/use-auth"
 import { useCreateFund } from "@/hooks/use-fund"
 import { zodResolver } from "@hookform/resolvers/zod"
 import dayjs from "dayjs"
@@ -263,6 +264,8 @@ export function FundForm({ children, data, onSubmit }: Form) {
 
 export function FundFormTriggerBtn() {
   const [open, setOpen] = useState(false)
+  const { can } = useAuth()
+  const canManageFund = can("can_manage_fund")
 
   const create = useCreateFund()
 
@@ -273,6 +276,8 @@ export function FundFormTriggerBtn() {
       },
     })
   }
+
+  if (!canManageFund) return null
 
   return (
     <>

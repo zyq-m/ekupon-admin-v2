@@ -1,4 +1,5 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios"
+import { toast } from "sonner"
 
 // Create axios instance
 const api = axios.create({
@@ -24,7 +25,17 @@ const responseInterceptor = async (error: AxiosError) => {
     _retry?: boolean
   }
 
-  if (error.response?.status === 403 && !originalRequest._retry) {
+  const status = error.response?.status
+  const message = (
+    error.response?.data as { message?: string } | undefined
+  )?.message
+
+  // Only expired/invalid tokens are refreshed. RBAC failures return 403 too,
+  // so refreshing on every 403 would retry forbidden requests unnecessarily.
+  const shouldRefresh =
+    status === 401 || (status === 403 && message === "Token expired")
+
+  if (shouldRefresh && originalRequest && !originalRequest._retry) {
     originalRequest._retry = true
 
     const refreshToken = localStorage.getItem("refreshToken")
@@ -52,6 +63,12 @@ const responseInterceptor = async (error: AxiosError) => {
       window.location.href = "/ekupon-admin/login" // Redirect to login
       return Promise.reject(refreshError)
     }
+  }
+
+  if (status === 403) {
+    toast.error(message ?? "You do not have permission to do that", {
+      id: "forbidden-error",
+    })
   }
 
   return Promise.reject(error)

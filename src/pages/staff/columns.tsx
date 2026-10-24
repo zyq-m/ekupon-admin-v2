@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { useSuspendUser } from "@/hooks/use-auth"
+import { useAuth, useSuspendUser } from "@/hooks/use-auth"
 import { useSetCouponStatus } from "@/hooks/use-fund"
 import { useUpdateStaff } from "@/hooks/use-staff"
 import { cn, formatDate, formatRM } from "@/lib/utils"
@@ -204,6 +204,8 @@ export const staffCol = ({ suspend }: Meta): ColumnDef<TStaff>[] => [
       const staff = row.original
       const [open, setOpen] = useState(false)
       const update = useUpdateStaff()
+      const { can, isSuperAdmin } = useAuth()
+      const canManageStaff = can("can_manage_staff")
 
       const onSuspend = () => {
         suspend.mutate({
@@ -220,41 +222,49 @@ export const staffCol = ({ suspend }: Meta): ColumnDef<TStaff>[] => [
                 View
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageStaff && (
+              <DropdownMenuItem onClick={() => setOpen(true)}>
+                Edit
+              </DropdownMenuItem>
+            )}
 
-            <DropdownMenuSeparator />
+            {isSuperAdmin && (
+              <>
+                <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onSuspend}
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant={isActive ? "destructive" : "default"}
+                  onClick={onSuspend}
+                >
+                  {isActive ? "Suspend" : "Activate"}
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Edit Staff</DialogTitle>
-              </DialogHeader>
-              <EditStaffForm
-                staff={staff}
-                onSave={(updated) => {
-                  update.mutate(updated, {
-                    onSuccess: () => {
-                      toast.success("Staff updated")
-                      setOpen(false)
-                    },
-                    onError: () => {
-                      toast.error("Failed to update staff")
-                    },
-                  })
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+          {canManageStaff && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Staff</DialogTitle>
+                </DialogHeader>
+                <EditStaffForm
+                  staff={staff}
+                  onSave={(updated) => {
+                    update.mutate(updated, {
+                      onSuccess: () => {
+                        toast.success("Staff updated")
+                        setOpen(false)
+                      },
+                      onError: () => {
+                        toast.error("Failed to update staff")
+                      },
+                    })
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </>
       )
     },
@@ -314,6 +324,9 @@ export const staffCouponCol: ColumnDef<StaffProfile["coupons"][0]>[] = [
       const coupon = row.original
       const isActive = coupon.is_active
       const status = useSetCouponStatus()
+      const { can } = useAuth()
+
+      if (!can("can_manage_balance")) return null
 
       return (
         <ActionDropdown>

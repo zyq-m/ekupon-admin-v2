@@ -1,4 +1,10 @@
+import {
+  HomeRedirect,
+  PermissionGuard,
+  SuperAdminGuard,
+} from "@/components/auth-guard"
 import { DashboardLayout } from "@/components/DashboardLayout"
+import { AdminListPage } from "@/pages/admin/AdminListPage"
 import { CafePage } from "@/pages/cafe/"
 import { CafeListPage } from "@/pages/cafe/CafeListPage"
 import ViewCafe from "@/pages/cafe/ViewCafe"
@@ -25,11 +31,22 @@ export const AppRoutes: RouteObject[] = [
     path: "/ekupon-admin",
     element: <DashboardLayout />, // Sidebar layout
     children: [
-      { index: true, element: <Navigate to="/ekupon-admin/dashboard" /> },
-      { path: "dashboard", element: <DashboardPage /> },
+      { index: true, element: <HomeRedirect /> },
+      {
+        path: "dashboard",
+        element: (
+          <PermissionGuard permission="can_generate_report">
+            <DashboardPage />
+          </PermissionGuard>
+        ),
+      },
       {
         path: "student",
-        element: <StudentPage />,
+        element: (
+          <PermissionGuard permission="can_manage_user">
+            <StudentPage />
+          </PermissionGuard>
+        ),
         children: [
           { path: "", element: <StudentListPage /> },
           { path: "import", element: <ImportStudent /> },
@@ -44,10 +61,21 @@ export const AppRoutes: RouteObject[] = [
           { path: ":id", element: <ViewCafe /> },
         ],
       },
-      { path: "transaction", element: <TransactionPage /> },
+      {
+        path: "transaction",
+        element: (
+          <PermissionGuard permission="can_generate_report">
+            <TransactionPage />
+          </PermissionGuard>
+        ),
+      },
       {
         path: "staff",
-        element: <StaffPage />,
+        element: (
+          <PermissionGuard permission="can_manage_staff">
+            <StaffPage />
+          </PermissionGuard>
+        ),
         children: [
           { path: "", element: <StaffListPage /> },
           { path: "import", element: <ImportStaff /> },
@@ -62,6 +90,15 @@ export const AppRoutes: RouteObject[] = [
           { path: ":id", element: <ViewCouponPage /> },
         ],
       },
+      {
+        path: "admins",
+        element: (
+          <SuperAdminGuard>
+            <AdminListPage />
+          </SuperAdminGuard>
+        ),
+      },
+      { path: "*", element: <Navigate to="/ekupon-admin/dashboard" replace /> },
     ],
   },
   { path: "*", element: <NotFound /> },

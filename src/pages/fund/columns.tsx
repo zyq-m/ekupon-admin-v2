@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { useUpdateFund } from "@/hooks/use-fund"
+import { useAuth } from "@/hooks/use-auth"
 import { formatDate, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useState } from "react"
@@ -88,6 +89,8 @@ export const columns: ColumnDef<Fund>[] = [
     cell: ({ row }) => {
       const fund = row.original
       const [open, setOpen] = useState(false)
+      const { can } = useAuth()
+      const canManageFund = can("can_manage_fund")
 
       const update = useUpdateFund()
 
@@ -109,23 +112,31 @@ export const columns: ColumnDef<Fund>[] = [
               <Link to={`/ekupon-admin/coupon/${fund.id}`}>View</Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onSelect={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageFund && (
+              <>
+                <DropdownMenuItem onSelect={() => setOpen(true)}>
+                  Edit
+                </DropdownMenuItem>
 
-            <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-            <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+                <DropdownMenuItem variant="destructive">
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <FundFormDialog
-            title="Edit fund"
-            desc="Update the fund information"
-            fund={fund}
-            isOpen={open}
-            setOpen={setOpen}
-            onSubmit={onSubmit}
-          />
+          {canManageFund && (
+            <FundFormDialog
+              title="Edit fund"
+              desc="Update the fund information"
+              fund={fund}
+              isOpen={open}
+              setOpen={setOpen}
+              onSubmit={onSubmit}
+            />
+          )}
         </>
       )
     },

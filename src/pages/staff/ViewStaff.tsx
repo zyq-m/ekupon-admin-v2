@@ -3,17 +3,36 @@ import DataTable from "@/components/data-table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useSuspendUser } from "@/hooks/use-auth"
+import { useAuth, useSuspendUser } from "@/hooks/use-auth"
 import { useGetStaffProfile, useGetStaffTf } from "@/hooks/use-staff"
 import { Hash, History, Mail, ShieldCheck, User, Wallet } from "lucide-react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { staffCouponCol, staffTfCol } from "./columns"
 
 export default function ViewStaffPage() {
   const { email } = useParams<{ email: string }>()
+  const { can } = useAuth()
+  const canReport = can("can_generate_report")
+  const [fundId, setFundId] = useState<number>(0)
   const { data: profile } = useGetStaffProfile(email!)
-  const { data: tf } = useGetStaffTf(email!)
+  const { data: tf } = useGetStaffTf(email!, fundId)
+
+  useEffect(() => {
+    if (!fundId && profile?.coupons[0]) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setFundId(profile.coupons[0].fund_id)
+    }
+  }, [fundId, profile])
 
   return (
     <div className="space-y-6">
@@ -25,10 +44,12 @@ export default function ViewStaffPage() {
             <Wallet />
             Coupon
           </TabsTrigger>
-          <TabsTrigger value="trans">
-            <History />
-            History
-          </TabsTrigger>
+          {canReport && (
+            <TabsTrigger value="trans">
+              <History />
+              History
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="coupon">
@@ -39,14 +60,37 @@ export default function ViewStaffPage() {
             placeholder="Search for Coupon"
           />
         </TabsContent>
-        <TabsContent value="trans">
-          <DataTable
-            columns={staffTfCol}
-            colName="cafe_name"
-            data={tf?.transactions || []}
-            placeholder="Search for Recipient"
-          />
-        </TabsContent>
+        {canReport && (
+          <TabsContent value="trans">
+            <DataTable
+              columns={staffTfCol}
+              colName="cafe_name"
+              data={tf?.transactions || []}
+              placeholder="Search for Recipient"
+            >
+              <Select
+                value={fundId ? fundId.toString() : undefined}
+                onValueChange={(value) => setFundId(Number(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a Fund" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {profile?.coupons.map((coupon) => (
+                      <SelectItem
+                        key={coupon.id}
+                        value={coupon.fund_id.toString()}
+                      >
+                        {coupon.fund.name}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            </DataTable>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )
@@ -54,6 +98,7 @@ export default function ViewStaffPage() {
 
 export const StaffProfileCard = ({ data }: { data: StaffProfile }) => {
   const suspend = useSuspendUser()
+  const { isSuperAdmin } = useAuth()
   const isActive = data.user?.is_active
 
   return (
@@ -75,18 +120,20 @@ export const StaffProfileCard = ({ data }: { data: StaffProfile }) => {
             <Badge variant={isActive ? "default" : "destructive"}>
               {isActive ? "Active" : "Suspended"}
             </Badge>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                suspend.mutate({
-                  id: data.user_id,
-                  active: !isActive,
-                })
-              }
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </Button>
+            {isSuperAdmin && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  suspend.mutate({
+                    id: data.user_id,
+                    active: !isActive,
+                  })
+                }
+              >
+                {isActive ? "Suspend" : "Activate"}
+              </Button>
+            )}
           </div>
         </div>
 

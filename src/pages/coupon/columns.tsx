@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useSetCouponStatus } from "@/hooks/use-fund"
+import { useAuth } from "@/hooks/use-auth"
 import { cn, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
 import { useState } from "react"
@@ -106,6 +107,8 @@ export const columns = (): ColumnDef<CouponRow>[] => [
       const couponActive = coupon.is_active
       const [open, setOpen] = useState(false)
       const status = useSetCouponStatus()
+      const { can } = useAuth()
+      const canManageBalance = can("can_manage_balance")
 
       const onToggleCoupon = () => {
         status.mutate(
@@ -127,33 +130,41 @@ export const columns = (): ColumnDef<CouponRow>[] => [
       return (
         <>
           <ActionDropdown>
-            <DropdownMenuItem asChild>
-              <Link to={`/ekupon-admin/student/${coupon.student?.ic_no}`}>
-                View
-              </Link>
-            </DropdownMenuItem>
+            {can("can_manage_user") && (
+              <DropdownMenuItem asChild>
+                <Link to={`/ekupon-admin/student/${coupon.student?.ic_no}`}>
+                  View
+                </Link>
+              </DropdownMenuItem>
+            )}
 
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageBalance && (
+              <>
+                <DropdownMenuItem onClick={() => setOpen(true)}>
+                  Edit
+                </DropdownMenuItem>
 
-            <DropdownMenuItem
-              variant={couponActive ? "destructive" : "default"}
-              onClick={onToggleCoupon}
-            >
-              {couponActive ? "Deactivate" : "Activate Coupon"}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant={couponActive ? "destructive" : "default"}
+                  onClick={onToggleCoupon}
+                >
+                  {couponActive ? "Deactivate" : "Activate Coupon"}
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <CouponAmountDialog
-            open={open}
-            onOpenChange={setOpen}
-            studentName={coupon.student?.name ?? "N/A"}
-            coupon={{
-              id: coupon.id,
-              balance: coupon.balance,
-            }}
-          />
+          {canManageBalance && (
+            <CouponAmountDialog
+              open={open}
+              onOpenChange={setOpen}
+              studentName={coupon.student?.name ?? "N/A"}
+              coupon={{
+                id: coupon.id,
+                balance: coupon.balance,
+              }}
+            />
+          )}
         </>
       )
     },
@@ -210,6 +221,8 @@ export const staffColumns = (): ColumnDef<StaffCouponRow>[] => [
       const isActive = coupon.is_active
       const [open, setOpen] = useState(false)
       const status = useSetCouponStatus()
+      const { can } = useAuth()
+      const canManageBalance = can("can_manage_balance")
 
       const onToggleCoupon = () => {
         status.mutate(
@@ -228,30 +241,38 @@ export const staffColumns = (): ColumnDef<StaffCouponRow>[] => [
       return (
         <>
           <ActionDropdown>
-            <DropdownMenuItem asChild>
-              <Link to={`/ekupon-admin/staff/${coupon.staff.email}`}>
-                View
-              </Link>
-            </DropdownMenuItem>
+            {can("can_manage_staff") && (
+              <DropdownMenuItem asChild>
+                <Link to={`/ekupon-admin/staff/${coupon.staff.email}`}>
+                  View
+                </Link>
+              </DropdownMenuItem>
+            )}
 
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageBalance && (
+              <>
+                <DropdownMenuItem onClick={() => setOpen(true)}>
+                  Edit
+                </DropdownMenuItem>
 
-            <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onToggleCoupon}
-            >
-              {isActive ? "Deactivate" : "Activate Coupon"}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant={isActive ? "destructive" : "default"}
+                  onClick={onToggleCoupon}
+                >
+                  {isActive ? "Deactivate" : "Activate Coupon"}
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <BulkCouponAmountDialog
-            open={open}
-            onOpenChange={setOpen}
-            coupons={[{ id: coupon.id }]}
-            studentCount={1}
-          />
+          {canManageBalance && (
+            <BulkCouponAmountDialog
+              open={open}
+              onOpenChange={setOpen}
+              coupons={[{ id: coupon.id }]}
+              studentCount={1}
+            />
+          )}
         </>
       )
     },

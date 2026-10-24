@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import type { Cafe, CreateCafeInput } from "@/api/cafe"
 import type { TfComplete, Transaction } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
@@ -10,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { useSuspendUser } from "@/hooks/use-auth"
+import { useSuspendUser, useAuth } from "@/hooks/use-auth"
 import type { useUpdateCafe } from "@/hooks/use-cafe"
 import { cn, formatDate, formatNumber, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -117,8 +118,8 @@ export const columns = ({ suspend, update }: Meta): ColumnDef<Cafe>[] => [
       const id = row.original.id
       const cafe = row.original
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [open, setOpen] = useState(false)
+      const { isSuperAdmin } = useAuth()
 
       const onSuspend = () => {
         suspend.mutate({
@@ -151,12 +152,14 @@ export const columns = ({ suspend, update }: Meta): ColumnDef<Cafe>[] => [
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onSuspend}
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </DropdownMenuItem>
+            {isSuperAdmin && (
+              <DropdownMenuItem
+                variant={isActive ? "destructive" : "default"}
+                onClick={onSuspend}
+              >
+                {isActive ? "Suspend" : "Activate"}
+              </DropdownMenuItem>
+            )}
           </ActionDropdown>
 
           <CafeFormDialog

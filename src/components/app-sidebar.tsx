@@ -1,3 +1,5 @@
+import type { PermissionKey } from "@/api/auth"
+import { Badge } from "@/components/ui/badge"
 import {
   Collapsible,
   CollapsibleContent,
@@ -16,6 +18,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { useAuth, useLogout } from "@/hooks/use-auth"
 import type { LucideIcon } from "lucide-react"
 import {
   ChevronRight,
@@ -24,16 +27,19 @@ import {
   GraduationCap,
   LayoutDashboard,
   LogOut,
+  ShieldCheck,
   Ticket,
   User2,
   UserCog,
 } from "lucide-react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 
 type MenuItem = {
   title: string
   icon: LucideIcon
   url?: string
+  permission?: PermissionKey
+  superOnly?: boolean
   children: { title: string; url: string }[]
 }
 
@@ -42,11 +48,13 @@ const menuItems: MenuItem[] = [
     title: "Dashboard",
     icon: LayoutDashboard,
     url: "/ekupon-admin/dashboard",
+    permission: "can_generate_report",
     children: [],
   },
   {
     title: "Student",
     icon: GraduationCap,
+    permission: "can_manage_user",
     children: [
       { title: "Search Student", url: "/ekupon-admin/student" },
       { title: "Import Student", url: "/ekupon-admin/student/import" },
@@ -55,6 +63,7 @@ const menuItems: MenuItem[] = [
   {
     title: "Staff",
     icon: UserCog,
+    permission: "can_manage_staff",
     children: [
       { title: "Search Staff", url: "/ekupon-admin/staff" },
       { title: "Import Staff", url: "/ekupon-admin/staff/import" },
@@ -66,21 +75,29 @@ const menuItems: MenuItem[] = [
     title: "Transaction",
     icon: CreditCard,
     url: "/ekupon-admin/transaction",
+    permission: "can_generate_report",
+    children: [],
+  },
+  {
+    title: "Admins",
+    icon: ShieldCheck,
+    url: "/ekupon-admin/admins",
+    superOnly: true,
     children: [],
   },
 ]
 
 export function AppSidebar() {
-  const navigation = useNavigate()
+  const { can, isSuperAdmin, admin, profile } = useAuth()
+  const onLogout = useLogout()
   const currentPath = window.location.pathname
-
-  const onLogout = () => {
-    localStorage.removeItem("accessToken")
-    localStorage.removeItem("refreshToken")
-    navigation("/ekupon-admin/login")
-  }
-
   const basePath = "/ekupon-admin"
+
+  const visibleItems = menuItems.filter((item) => {
+    if (item.superOnly) return isSuperAdmin
+    if (item.permission) return can(item.permission)
+    return true
+  })
 
   return (
     <Sidebar>
@@ -95,7 +112,7 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {menuItems.map((item) => {
+            {visibleItems.map((item) => {
               if (item.children.length === 0) {
                 return (
                   <SidebarMenuItem key={item.title}>
@@ -151,14 +168,30 @@ export function AppSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" className="cursor-default">
+              <User2 />
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-medium">
+                  {admin?.name ?? profile?.role.name}
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {admin?.email}
+                </span>
+              </div>
+              {admin && (
+                <Badge
+                  variant={isSuperAdmin ? "default" : "secondary"}
+                  className="ml-auto"
+                >
+                  {isSuperAdmin ? "Super" : "Admin"}
+                </Badge>
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton onClick={onLogout}>
               <LogOut /> Log out
-            </SidebarMenuButton>
-          </SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg">
-              <User2 /> ekupon@unisza.edu.my
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

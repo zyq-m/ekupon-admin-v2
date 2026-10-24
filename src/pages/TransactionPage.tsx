@@ -18,11 +18,8 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  useGetCafeTf,
-  useGetDirectedTf,
-  useVoidDirectedTf,
-} from "@/hooks/use-transaction"
+import { useGetCafeTf, useGetDirectedTf, useVoidDirectedTf } from "@/hooks/use-transaction"
+import { useAuth } from "@/hooks/use-auth"
 import { formatNumber, formatRM } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { BadgeDollarSign, Receipt, Search, Trash2 } from "lucide-react"
@@ -33,6 +30,8 @@ type Mode = "normal" | "directed"
 
 export function TransactionPage() {
   const [mode, setMode] = useState<Mode>("normal")
+  const { can } = useAuth()
+  const canManageBalance = can("can_manage_balance")
   const [tfPayload, setPayload] = useState<TfParams>({
     fundId: 0,
     from: "",
@@ -74,7 +73,7 @@ export function TransactionPage() {
         colName="cafe_name"
         placeholder="Search for Company Name"
         selectionActions={
-          mode === "directed"
+          mode === "directed" && canManageBalance
             ? (selected, resetSelection) => {
                 const cafeIds = selected.map((r) => r.id)
                 const totalTrans = selected.reduce(

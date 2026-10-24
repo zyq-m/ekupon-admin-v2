@@ -17,7 +17,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { useSuspendUser } from "@/hooks/use-auth"
+import { useAuth, useSuspendUser } from "@/hooks/use-auth"
 import { useSetCouponStatus } from "@/hooks/use-fund"
 import { useUpdateStudent } from "@/hooks/use-student"
 import { cn, formatDate, formatRM } from "@/lib/utils"
@@ -192,6 +192,8 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
       const isActive = row.original.user.is_active
       const coupon = row.original.coupons[0]
       const student = row.original
+      const { can, isSuperAdmin } = useAuth()
+      const canManageBalance = can("can_manage_balance")
 
       const [open, setOpen] = useState(false)
 
@@ -213,29 +215,37 @@ export const columns = ({ suspend }: Meta): ColumnDef<Student>[] => [
               </Link>
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageBalance && (
+              <DropdownMenuItem onClick={() => setOpen(true)}>
+                Edit
+              </DropdownMenuItem>
+            )}
 
-            <DropdownMenuSeparator />
+            {isSuperAdmin && (
+              <>
+                <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onSuspend}
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant={isActive ? "destructive" : "default"}
+                  onClick={onSuspend}
+                >
+                  {isActive ? "Suspend" : "Activate"}
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <CouponAmountDialog
-            open={open}
-            onOpenChange={setOpen}
-            studentName={student.name}
-            coupon={{
-              id: coupon.id,
-              balance: coupon.balance,
-            }}
-          />
+          {canManageBalance && (
+            <CouponAmountDialog
+              open={open}
+              onOpenChange={setOpen}
+              studentName={student.name}
+              coupon={{
+                id: coupon.id,
+                balance: coupon.balance,
+              }}
+            />
+          )}
         </>
       )
     },
@@ -300,6 +310,8 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
       const student = row.original
       const [open, setOpen] = useState(false)
       const update = useUpdateStudent()
+      const { can, isSuperAdmin } = useAuth()
+      const canManageUser = can("can_manage_user")
 
       const onSuspend = () => {
         suspend.mutate({
@@ -316,41 +328,49 @@ export const columnSimple = ({ suspend }: Meta): ColumnDef<TStudent>[] => [
                 View
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setOpen(true)}>
-              Edit
-            </DropdownMenuItem>
+            {canManageUser && (
+              <DropdownMenuItem onClick={() => setOpen(true)}>
+                Edit
+              </DropdownMenuItem>
+            )}
 
-            <DropdownMenuSeparator />
+            {isSuperAdmin && (
+              <>
+                <DropdownMenuSeparator />
 
-            <DropdownMenuItem
-              variant={isActive ? "destructive" : "default"}
-              onClick={onSuspend}
-            >
-              {isActive ? "Suspend" : "Activate"}
-            </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant={isActive ? "destructive" : "default"}
+                  onClick={onSuspend}
+                >
+                  {isActive ? "Suspend" : "Activate"}
+                </DropdownMenuItem>
+              </>
+            )}
           </ActionDropdown>
 
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>Edit Student</DialogTitle>
-              </DialogHeader>
-              <EditForm
-                student={student}
-                onSave={(updated) => {
-                  update.mutate(updated, {
-                    onSuccess: () => {
-                      toast.success("Student updated")
-                      setOpen(false)
-                    },
-                    onError: () => {
-                      toast.error("Failed to update student")
-                    },
-                  })
-                }}
-              />
-            </DialogContent>
-          </Dialog>
+          {canManageUser && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Edit Student</DialogTitle>
+                </DialogHeader>
+                <EditForm
+                  student={student}
+                  onSave={(updated) => {
+                    update.mutate(updated, {
+                      onSuccess: () => {
+                        toast.success("Student updated")
+                        setOpen(false)
+                      },
+                      onError: () => {
+                        toast.error("Failed to update student")
+                      },
+                    })
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
         </>
       )
     },
@@ -432,6 +452,9 @@ export const studentCouponCol: ColumnDef<Student["coupons"][0]>[] = [
       const coupon = row.original
       const isActive = coupon.is_active
       const status = useSetCouponStatus()
+      const { can } = useAuth()
+
+      if (!can("can_manage_balance")) return null
 
       return (
         <ActionDropdown>

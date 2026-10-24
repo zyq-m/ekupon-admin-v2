@@ -16,13 +16,19 @@ export function SelectFunds({
   value?: string | null
   onValueChange: (id: number) => void
 }) {
-  const { data } = useGetFunds()
+  const { data, isLoading } = useGetFunds()
   const [value, setValue] = useState<string | null>("")
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     if (externalValue !== undefined) setValue(externalValue)
   }, [externalValue])
+
+  if (!isLoading && !data?.length) {
+    return (
+      <p className="text-sm text-muted-foreground">No funds assigned</p>
+    )
+  }
 
   const handleSelect = (selectedName: string | null) => {
     // Find the ID corresponding to the selected name

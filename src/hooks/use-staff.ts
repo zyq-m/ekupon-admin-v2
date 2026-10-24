@@ -22,11 +22,11 @@ export function useGetStaffProfile(email: string) {
   })
 }
 
-export function useGetStaffTf(email: string) {
+export function useGetStaffTf(email: string, fundId: number) {
   return useQuery({
-    queryKey: ["transaction", "staff", email],
-    queryFn: () => staffAPI.getStaffTf(email),
-    enabled: !!email,
+    queryKey: ["transaction", "staff", email, fundId],
+    queryFn: () => staffAPI.getStaffTf(email, fundId),
+    enabled: !!email && !!fundId,
   })
 }
 

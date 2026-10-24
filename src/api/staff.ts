@@ -7,8 +7,10 @@ export const staffAPI = {
   getStaffProfile: (email: string) =>
     api.get<StaffProfile>(`/staff/${email}`).then((r) => r.data),
 
-  getStaffTf: (email: string) =>
-    api.get<StaffTfRes>(`/transaction/staff/${email}`).then((r) => r.data),
+  getStaffTf: (email: string, fundId: number) =>
+    api
+      .get<StaffTfRes>(`/transaction/staff/${email}`, { params: { fundId } })
+      .then((r) => r.data),
 
   listPtj: () => api.get<Ptj[]>("/lookup/ptj").then((r) => r.data),
 

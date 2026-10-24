@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useGetCafe } from "@/hooks/use-cafe"
+import { useAuth } from "@/hooks/use-auth"
 import { useGetFundById } from "@/hooks/use-fund"
 import { useCreateBulkTransaction } from "@/hooks/use-transaction"
 import type { CouponRow } from "@/pages/coupon/columns"
@@ -82,6 +83,8 @@ function TableSkeleton() {
 
 export function ViewCouponPage() {
   const { id } = useParams<{ id: string }>()
+  const { can } = useAuth()
+  const canManageBalance = can("can_manage_balance")
   const [fundId, setFundId] = useState<number | undefined>()
   const [sheetOpen, setSheetOpen] = useState(false)
   const [bulkAmountOpen, setBulkAmountOpen] = useState(false)
@@ -164,6 +167,7 @@ export function ViewCouponPage() {
               placeholder="Name"
               selectionActions={(selected, resetSelection) => {
                 resetSelectionRef.current = resetSelection
+                if (!canManageBalance) return null
                 return (
                   <>
                     <Button
