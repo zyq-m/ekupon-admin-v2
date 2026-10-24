@@ -15,6 +15,13 @@ import {
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
@@ -34,6 +41,8 @@ export function ImportStaff() {
   const [fundId, setFundId] = useState<number | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
   const [isIncrement, setIsIncrement] = useState(false)
+  const [sheetNames, setSheetNames] = useState<string[]>([])
+  const [selectedSheet, setSelectedSheet] = useState("0")
   const [tableData, setTableData] = useState<StaffUploadComparison[]>([])
 
   const checkUpload = useCheckStaffUpload()
@@ -48,18 +57,44 @@ export function ImportStaff() {
       }
 
       setFile(f)
-      const formData = new FormData()
-      formData.append("file", f)
-      formData.append("sheet", "0")
+      void (async () => {
+        try {
+          const buf = await f.arrayBuffer()
+          const wb = XLSX.read(buf, { type: "array" })
+          const names = wb.SheetNames ?? []
+          setSheetNames(names)
+          const sheet = names[0] ?? "0"
+          setSelectedSheet(sheet)
 
-      checkUpload.mutate(formData, {
-        onSuccess: (res) => {
-          setTableData(res.staff)
-          if (res.message) {
-            toast(res.message)
-          }
-        },
-      })
+          const formData = new FormData()
+          formData.append("file", f)
+          formData.append("sheet", String(names.indexOf(sheet)))
+
+          checkUpload.mutate(formData, {
+            onSuccess: (res) => {
+              setTableData(res.staff)
+              if (res.message) {
+                toast(res.message)
+              }
+            },
+          })
+        } catch {
+          setSheetNames([])
+          setSelectedSheet("0")
+          const formData = new FormData()
+          formData.append("file", f)
+          formData.append("sheet", "0")
+
+          checkUpload.mutate(formData, {
+            onSuccess: (res) => {
+              setTableData(res.staff)
+              if (res.message) {
+                toast(res.message)
+              }
+            },
+          })
+        }
+      })()
     },
     [checkUpload]
   )
@@ -156,9 +191,21 @@ export function ImportStaff() {
     })
   }
 
-  const onCancel = () => {
-    setFile(null)
+  const onSheetChange = (sheet: string) => {
+    if (!file) return
+    setSelectedSheet(sheet)
     setTableData([])
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("sheet", String(sheetNames.indexOf(sheet)))
+    checkUpload.mutate(formData, {
+      onSuccess: (res) => {
+        setTableData(res.staff)
+        if (res.message) {
+          toast(res.message)
+        }
+      },
+    })
   }
 
   const downloadUploadedFile = () => {
@@ -169,6 +216,13 @@ export function ImportStaff() {
     link.download = file.name
     link.click()
     URL.revokeObjectURL(url)
+  }
+
+const onCancel = () => {
+    setFile(null)
+    setTableData([])
+    setSheetNames([])
+    setSelectedSheet("0")
   }
 
   const downloadExcel = () => {
@@ -285,21 +339,46 @@ export function ImportStaff() {
           />
         </label>
         {file && (
-          <div className="flex justify-end gap-2">
-            <Button variant="ghost" size="sm" onClick={downloadUploadedFile}>
-              <Download />
-              Download file
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setFile(null)
-                setTableData([])
-              }}
-            >
-              Remove file
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            {sheetNames.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Sheet</span>
+                <Select value={selectedSheet} onValueChange={onSheetChange}>
+                  <SelectTrigger className="w-[200px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sheetNames.map((name) => (
+                      <SelectItem key={name} value={name}>
+                        {name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={downloadUploadedFile}
+              >
+                <Download />
+                Download file
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFile(null)
+                  setTableData([])
+                  setSheetNames([])
+                  setSelectedSheet("0")
+                }}
+              >
+                Remove file
+              </Button>
+            </div>
           </div>
         )}
       </div>
