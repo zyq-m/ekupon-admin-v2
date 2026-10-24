@@ -19,27 +19,64 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox"
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGetCafe } from "@/hooks/use-cafe"
 import {
   useBulkUploadXlsx,
   useCheckStudentUpload,
   useUpdateStudent,
 } from "@/hooks/use-student"
+import { useCreateBulkTransaction } from "@/hooks/use-transaction"
+import { zodResolver } from "@hookform/resolvers/zod"
 import type { AxiosError } from "axios"
-import { Upload } from "lucide-react"
-import { useCallback, useMemo, useState } from "react"
+import { CirclePlus, Loader2, Upload } from "lucide-react"
+import { useCallback, useMemo, useRef, useState } from "react"
+import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import * as XLSX from "xlsx"
+import { z } from "zod"
 import { comparisonCol } from "./columns"
 import { ConflictTable } from "./ConflictTable"
 
+import type { Cafe } from "@/api/cafe"
 import { StudentSearchDialog } from "@/components/form/student-form"
+
+const transFormSchema = z.object({
+  cafeId: z.string().min(1, "Cafe is required"),
+  date: z.string().min(1, "Date is required"),
+  amount: z.number().min(0.01, "Amount must be greater than 0"),
+})
+
+type TransFormValues = z.infer<typeof transFormSchema>
 
 export function ImportStudent() {
   const [file, setFile] = useState<File | null>(null)
@@ -50,7 +87,63 @@ export function ImportStudent() {
   const [selectedSheet, setSelectedSheet] = useState("0")
   const [tableData, setTableData] = useState<StudentUploadResponse["students"]>(
     []
-  ) // ✅ Table state
+  )
+  const [selectedStudents, setSelectedStudents] = useState<
+    StudentUploadComparison[]
+  >([])
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const resetSelectionRef = useRef<() => void>(() => {})
+
+  const { data: cafes } = useGetCafe()
+  const createBulkTransaction = useCreateBulkTransaction()
+
+  const form = useForm<TransFormValues>({
+    resolver: zodResolver(transFormSchema),
+    defaultValues: {
+      cafeId: "",
+      date: "",
+      amount: 0,
+    },
+  })
+
+  const { handleSubmit } = form
+  const [cafeValue, setCafeValue] = useState<string | null>(null)
+
+  const onSelectCafe = (value: string | null) => {
+    setCafeValue(value)
+    if (value) {
+      const cafe = cafes?.find((c) => c.cafe_name === value)
+      if (cafe) {
+        form.setValue("cafeId", cafe.id)
+      }
+    } else {
+      form.setValue("cafeId", "")
+    }
+  }
+
+  const onSubmit = () =>
+    handleSubmit((values) => {
+      if (!fundId) return
+      createBulkTransaction.mutate(
+        {
+          fundId,
+          students: selectedStudents.map((s) => s.uploaded.ic_no),
+          cafeId: values.cafeId,
+          date: values.date,
+          amount: values.amount,
+        },
+        {
+          onSuccess: () => {
+            setSheetOpen(false)
+            setSelectedStudents([])
+            setCafeValue(null)
+            form.reset()
+            resetSelectionRef.current()
+            toast.success("Direct transaction created")
+          },
+        }
+      )
+    })
 
   const checkUpload = useCheckStudentUpload()
   const bulkUploadXlsx = useBulkUploadXlsx()
@@ -395,6 +488,22 @@ export function ImportStudent() {
                 data={tableData}
                 colName="name"
                 placeholder="Search for Name"
+                selectionActions={(selected, resetSelection) => {
+                  resetSelectionRef.current = resetSelection
+                  return (
+                    <Button
+                      variant={"secondary"}
+                      disabled={!fundId}
+                      onClick={() => {
+                        setSelectedStudents(selected)
+                        setSheetOpen(true)
+                      }}
+                    >
+                      <CirclePlus />
+                      Create {selected.length} transactions
+                    </Button>
+                  )
+                }}
               >
                 <div className="flex gap-2">
                   <SelectFunds onValueChange={setFundId} />
@@ -447,6 +556,109 @@ export function ImportStudent() {
           </Tabs>
         </div>
       )}
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent side="right" className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>Create Transaction</SheetTitle>
+            <SheetDescription>
+              {selectedStudents.length} student(s) selected
+            </SheetDescription>
+          </SheetHeader>
+
+          <form
+            id="bulk-trans-form"
+            onSubmit={onSubmit}
+            className="flex-1 space-y-6 p-4"
+          >
+            <FieldGroup>
+              <Field>
+                <FieldLabel htmlFor="cafe-select">Cafe</FieldLabel>
+                <Combobox
+                  value={cafeValue}
+                  onValueChange={onSelectCafe}
+                  items={cafes ?? []}
+                >
+                  <ComboboxInput id="cafe-select" placeholder="Select a cafe" />
+                  <ComboboxContent className="z-50">
+                    <ComboboxEmpty>No items found.</ComboboxEmpty>
+                    <ComboboxList>
+                      {(cafe: Cafe) => (
+                        <ComboboxItem key={cafe.id} value={cafe.cafe_name}>
+                          {cafe.cafe_name}
+                        </ComboboxItem>
+                      )}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+                {form.formState.errors.cafeId && (
+                  <FieldError>
+                    {form.formState.errors.cafeId.message}
+                  </FieldError>
+                )}
+              </Field>
+
+              <Controller
+                name="date"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="date">Date</FieldLabel>
+                    <Input id="date" type="date" {...field} />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Controller
+                name="amount"
+                control={form.control}
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="amount">Amount (RM)</FieldLabel>
+                    <Input
+                      id="amount"
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      {...field}
+                      onChange={(e) =>
+                        field.onChange(parseFloat(e.target.value))
+                      }
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+            </FieldGroup>
+          </form>
+
+          <SheetFooter>
+            <Button
+              type="submit"
+              form="bulk-trans-form"
+              disabled={createBulkTransaction.isPending || !fundId}
+            >
+              {createBulkTransaction.isPending ? (
+                <>
+                  <Loader2 className="animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Create"
+              )}
+            </Button>
+            <Button variant="outline" onClick={() => setSheetOpen(false)}>
+              Cancel
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+
       <StudentSearchDialog />
     </div>
   )
