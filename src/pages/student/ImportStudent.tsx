@@ -121,29 +121,28 @@ export function ImportStudent() {
     }
   }
 
-  const onSubmit = () =>
-    handleSubmit((values) => {
-      if (!fundId) return
-      createBulkTransaction.mutate(
-        {
-          fundId,
-          students: selectedStudents.map((s) => s.uploaded.ic_no),
-          cafeId: values.cafeId,
-          date: values.date,
-          amount: values.amount,
+  const onSubmit = (values: TransFormValues) => {
+    if (!fundId) return
+    createBulkTransaction.mutate(
+      {
+        fundId,
+        students: selectedStudents.map((s) => s.uploaded.ic_no),
+        cafeId: values.cafeId,
+        date: values.date,
+        amount: values.amount,
+      },
+      {
+        onSuccess: () => {
+          setSheetOpen(false)
+          setSelectedStudents([])
+          setCafeValue(null)
+          form.reset()
+          resetSelectionRef.current()
+          toast.success("Direct transaction created")
         },
-        {
-          onSuccess: () => {
-            setSheetOpen(false)
-            setSelectedStudents([])
-            setCafeValue(null)
-            form.reset()
-            resetSelectionRef.current()
-            toast.success("Direct transaction created")
-          },
-        }
-      )
-    })
+      }
+    )
+  }
 
   const checkUpload = useCheckStudentUpload()
   const bulkUploadXlsx = useBulkUploadXlsx()
@@ -568,7 +567,8 @@ export function ImportStudent() {
 
           <form
             id="bulk-trans-form"
-            onSubmit={onSubmit}
+            // eslint-disable-next-line react-hooks/refs
+            onSubmit={handleSubmit(onSubmit)}
             className="flex-1 space-y-6 p-4"
           >
             <FieldGroup>
