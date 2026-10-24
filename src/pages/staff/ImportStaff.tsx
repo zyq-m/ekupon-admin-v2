@@ -218,7 +218,7 @@ export function ImportStaff() {
     URL.revokeObjectURL(url)
   }
 
-const onCancel = () => {
+  const onCancel = () => {
     setFile(null)
     setTableData([])
     setSheetNames([])
@@ -358,11 +358,7 @@ const onCancel = () => {
               </div>
             )}
             <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={downloadUploadedFile}
-              >
+              <Button variant="ghost" size="sm" onClick={downloadUploadedFile}>
                 <Download />
                 Download file
               </Button>

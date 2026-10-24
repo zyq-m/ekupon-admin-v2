@@ -58,7 +58,7 @@ import {
 import { useCreateBulkTransaction } from "@/hooks/use-transaction"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { AxiosError } from "axios"
-import { CirclePlus, Loader2, Upload } from "lucide-react"
+import { CirclePlus, Download, Loader2, Upload } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -346,6 +346,19 @@ export function ImportStudent() {
     [update, updateStudentData]
   )
 
+  const downloadExcel = () => {
+    const wb = XLSX.utils.book_new()
+    const rows = tableData.map((s) => ({
+      Name: s.uploaded.name,
+      MatricNo: s.uploaded.matric_no,
+      IcNo: s.uploaded.ic_no,
+      Balance: s.uploaded.balance,
+    }))
+    const ws = XLSX.utils.json_to_sheet(rows)
+    XLSX.utils.book_append_sheet(wb, ws, selectedSheet)
+    XLSX.writeFile(wb, `Resolve-${selectedSheet}.xlsx`)
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -507,6 +520,9 @@ export function ImportStudent() {
                 <div className="flex gap-2">
                   <SelectFunds onValueChange={setFundId} />
                   <FundFormTriggerBtn />
+                  <Button variant="outline" onClick={downloadExcel}>
+                    <Download />
+                  </Button>
                 </div>
               </DataTable>
               <div className="flex justify-end gap-2">
