@@ -54,11 +54,9 @@ import {
   useBulkUploadXlsx,
   useCheckStudentUpload,
   useUpdateFromExcel,
-  useUpdateStudent,
 } from "@/hooks/use-student"
 import { useCreateBulkTransaction } from "@/hooks/use-transaction"
 import { zodResolver } from "@hookform/resolvers/zod"
-import type { AxiosError } from "axios"
 import { CheckCheck, CirclePlus, Download, Loader2, Upload } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -66,7 +64,6 @@ import { toast } from "sonner"
 import * as XLSX from "xlsx"
 import { z } from "zod"
 import { comparisonCol } from "./columns"
-import { ConflictTable } from "./ConflictTable"
 
 import type { Cafe } from "@/api/cafe"
 import { StudentSearchDialog } from "@/components/form/student-form"
@@ -147,7 +144,6 @@ export function ImportStudent() {
 
   const checkUpload = useCheckStudentUpload()
   const bulkUploadXlsx = useBulkUploadXlsx()
-  const update = useUpdateStudent()
 
   const processFile = useCallback(
     (f: File) => {
@@ -323,28 +319,6 @@ export function ImportStudent() {
   const conflictedData = useMemo(
     () => tableData.filter((s) => s.conflict),
     [tableData]
-  )
-
-  const handleResolve = useCallback(
-    (
-      student: StudentUploadComparison,
-      resolved: StudentUploadComparison["uploaded"]
-    ) => {
-      update.mutate(
-        { ...resolved, userId: student.existing!.user_id },
-        {
-          onSuccess: () => {
-            updateStudentData(student, resolved)
-            toast.success("Student updated")
-          },
-          onError: (error: AxiosError<{ message: string }>) => {
-            const msg = error.response?.data?.message
-            toast.error(msg || "Failed to update student")
-          },
-        }
-      )
-    },
-    [update, updateStudentData]
   )
 
   const downloadExcel = () => {
@@ -547,17 +521,6 @@ export function ImportStudent() {
                         <CirclePlus />
                         Create {selected.length} transactions
                       </Button>
-
-                      <Button
-                        variant={"secondary"}
-                        onClick={() => {
-                          setSelectedStudents(selected)
-                          acceptResolve(selected, "uploaded")
-                        }}
-                      >
-                        <CheckCheck />
-                        Accept {selected.length} uploaded
-                      </Button>
                     </>
                   )
                 }}
@@ -605,13 +568,29 @@ export function ImportStudent() {
               </div>
             </TabsContent>
             <TabsContent value="conflicts">
-              <div className="pt-4">
-                <ConflictTable
-                  data={conflictedData}
-                  onResolve={handleResolve}
-                  resolving={update.isPending}
-                />
-              </div>
+              <DataTable
+                columns={comparisonCol(updateStudentData, deleteStudent)}
+                data={tableData.filter((d) => d.conflict)}
+                colName="name"
+                placeholder="Search for Name"
+                selectionActions={(selected, resetSelection) => {
+                  resetSelectionRef.current = resetSelection
+
+                  return (
+                    <>
+                      <Button
+                        onClick={() => {
+                          setSelectedStudents(selected)
+                          acceptResolve(selected, "uploaded")
+                        }}
+                      >
+                        <CheckCheck />
+                        Accept {selected.length} uploaded
+                      </Button>
+                    </>
+                  )
+                }}
+              />
             </TabsContent>
           </Tabs>
         </div>
