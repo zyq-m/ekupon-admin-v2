@@ -16,12 +16,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useGetCafeTf, useGetDirectedTf, useVoidDirectedTf } from "@/hooks/use-transaction"
 import { useAuth } from "@/hooks/use-auth"
+import {
+  useGetCafeTf,
+  useGetDirectedTf,
+  useVoidDirectedTf,
+} from "@/hooks/use-transaction"
 import { formatNumber, formatRM } from "@/lib/utils"
-import { Badge } from "@/components/ui/badge"
 import { BadgeDollarSign, Receipt, Search, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { cafeTransactionCol } from "./cafe/columns"
@@ -42,9 +46,7 @@ export function TransactionPage() {
   const voidMutation = useVoidDirectedTf()
 
   const data =
-    mode === "normal"
-      ? cafeQuery.data
-      : directedQuery.data?.transactions
+    mode === "normal" ? cafeQuery.data : directedQuery.data?.transactions
   const refetch = mode === "normal" ? cafeQuery.refetch : directedQuery.refetch
 
   const onFilter = (newFilter: Partial<TfParams>) => {
@@ -57,12 +59,12 @@ export function TransactionPage() {
         <div className="grid grid-cols-2 gap-4">
           <MetricCard
             title="Total Transaction"
-            value={formatNumber(data.summary.totalTf)}
+            value={formatNumber(data.summary?.totalTf)}
             icon={<Receipt className="h-4 w-4 text-muted-foreground" />}
           />
           <MetricCard
             title="Total Amount"
-            value={formatRM(data.summary.totalAmount)}
+            value={formatRM(data.summary?.totalAmount)}
             icon={<BadgeDollarSign className="h-4 w-4 text-muted-foreground" />}
           />
         </div>
@@ -149,7 +151,9 @@ export function TransactionPage() {
               </Badge>
             )}
 
-          <TransactionReportTable data={data} tfPayload={tfPayload} />
+          {data?.transactions && (
+            <TransactionReportTable data={data} tfPayload={tfPayload} />
+          )}
         </div>
       </DataTable>
     </div>
