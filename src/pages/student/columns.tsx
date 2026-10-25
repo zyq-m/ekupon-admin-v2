@@ -2,6 +2,7 @@
 import type { Student, StudentUploadComparison, TStudent } from "@/api/student"
 import type { TfComplete } from "@/api/transaction"
 import ActionDropdown from "@/components/action-dropdown"
+import { ComparisonLabel } from "@/components/conflict-ui"
 import { CouponAmountDialog } from "@/components/form/coupon-amount-form"
 import { EditForm, StudentConflictDialog } from "@/components/form/student-form"
 import { SortableHeader } from "@/components/sortable-header"
@@ -69,17 +70,59 @@ export const comparisonCol = (
     id: "name",
     accessorFn: ({ uploaded }) => uploaded.name,
     header: "Name",
-    cell: ({ row }) => row.original.uploaded.name,
+    cell: ({ row }) => {
+      const uploaded = row.original.uploaded.name
+      const existed = row.original.existing?.name
+      const isExist = row.original.exists
+      const isConflict = row.original.conflict
+
+      return (
+        <ComparisonLabel
+          uploaded={uploaded}
+          existed={existed}
+          isExist={isExist}
+          isConflict={isConflict}
+        />
+      )
+    },
   },
   {
     id: "matric_no",
     header: "Matric No.",
-    cell: ({ row }) => row.original.uploaded.matric_no,
+    cell: ({ row }) => {
+      const uploaded = row.original.uploaded.matric_no
+      const existed = row.original.existing?.matric_no
+      const isExist = row.original.exists
+      const isConflict = row.original.conflict
+
+      return (
+        <ComparisonLabel
+          uploaded={uploaded}
+          existed={existed}
+          isExist={isExist}
+          isConflict={isConflict}
+        />
+      )
+    },
   },
   {
     id: "ic_no",
     header: "IC No.",
-    cell: ({ row }) => row.original.uploaded.ic_no,
+    cell: ({ row }) => {
+      const uploaded = row.original.uploaded.ic_no
+      const existed = row.original.existing?.ic_no
+      const isExist = row.original.exists
+      const isConflict = row.original.conflict
+
+      return (
+        <ComparisonLabel
+          uploaded={uploaded}
+          existed={existed}
+          isExist={isExist}
+          isConflict={isConflict}
+        />
+      )
+    },
   },
   {
     accessorKey: "differences",
@@ -87,6 +130,15 @@ export const comparisonCol = (
     cell: ({ row }) => {
       const diff = row.original.differences
       const conflict = row.original.conflict
+      const isExist = row.original.exists
+
+      if (!isExist) {
+        return (
+          <Badge variant="secondary" className="bg-green-500">
+            New
+          </Badge>
+        )
+      }
 
       return (
         <Badge variant={conflict ? "destructive" : "secondary"}>

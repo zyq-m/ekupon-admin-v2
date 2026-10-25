@@ -52,7 +52,12 @@ export const tfAPI = {
       .then((res) => res.data),
 
   createBulkTf: (input: BulkCreateTfInput) =>
-    api.post("/transaction/direct", input).then((r) => r.data),
+    api
+      .post<{
+        completed: number
+        skippedInactive: number
+      }>("/transaction/direct", input)
+      .then((r) => r.data),
 
   listDirectedTf: (params: DirectedTfParams) =>
     api

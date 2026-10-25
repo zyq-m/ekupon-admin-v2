@@ -50,6 +50,23 @@ export const studentAPI = {
     api
       .get<TStudent[]>("/student/search", { params: search })
       .then((r) => r.data),
+
+  updateFromExcel: (formData: FormData) =>
+    api
+      .post<FromExcelRes>("/student/update-from-excel", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      .then((r) => r.data),
+}
+
+export type FromExcelRes = {
+  total: number
+  created: number
+  updated: number
+  unchanged: number
+  skipped: {
+    count: number
+  }
 }
 
 export type UpdateStudentError = {

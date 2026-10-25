@@ -30,7 +30,11 @@ interface ConflictTableProps {
   resolving?: boolean
 }
 
-export function ConflictTable({ data, onResolve, resolving }: ConflictTableProps) {
+export function ConflictTable({
+  data,
+  onResolve,
+  resolving,
+}: ConflictTableProps) {
   const [drafts, setDrafts] = useState<
     Record<string, StudentUploadComparison["uploaded"]>
   >({})
@@ -180,7 +184,11 @@ export function ConflictTable({ data, onResolve, resolving }: ConflictTableProps
               </div>
             </CardContent>
             <CardFooter className="justify-end gap-2">
-              <Button size="sm" disabled={resolving} onClick={() => onResolve(student, draft)}>
+              <Button
+                size="sm"
+                disabled={resolving}
+                onClick={() => onResolve(student, draft)}
+              >
                 Resolve
               </Button>
             </CardFooter>

@@ -70,9 +70,11 @@ export function useCreateBulkTransaction() {
 
   return useMutation({
     mutationFn: (input: BulkCreateTfInput) => tfAPI.createBulkTf(input),
-    onSuccess: (_, vars) => {
+    onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ["transaction"] })
-      toast(`${vars.students.length} transaction(s) created successfully`)
+      toast(
+        `${res.completed} transaction(s) created successfully, ${res.skippedInactive} skipped`
+      )
     },
     onError: (err) => {
       const message =

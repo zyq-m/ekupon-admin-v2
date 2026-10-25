@@ -89,3 +89,21 @@ export const useStudentSearch = ({
     placeholderData: [], // Empty array while loading
   })
 }
+
+export function useUpdateFromExcel() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: (formData: FormData) => studentAPI.updateFromExcel(formData),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["students"] })
+
+      toast.success(`${res.updated} records updated`)
+    },
+    onError: (error: AxiosError<UpdateStudentError>) => {
+      const apiErr = error.response?.data
+
+      toast.error(apiErr?.message)
+    },
+  })
+}

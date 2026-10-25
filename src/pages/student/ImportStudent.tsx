@@ -53,12 +53,13 @@ import { useGetCafe } from "@/hooks/use-cafe"
 import {
   useBulkUploadXlsx,
   useCheckStudentUpload,
+  useUpdateFromExcel,
   useUpdateStudent,
 } from "@/hooks/use-student"
 import { useCreateBulkTransaction } from "@/hooks/use-transaction"
 import { zodResolver } from "@hookform/resolvers/zod"
 import type { AxiosError } from "axios"
-import { CirclePlus, Download, Loader2, Upload } from "lucide-react"
+import { CheckCheck, CirclePlus, Download, Loader2, Upload } from "lucide-react"
 import { useCallback, useMemo, useRef, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { toast } from "sonner"
@@ -69,6 +70,7 @@ import { ConflictTable } from "./ConflictTable"
 
 import type { Cafe } from "@/api/cafe"
 import { StudentSearchDialog } from "@/components/form/student-form"
+import { createExcel } from "@/lib/excel"
 
 const transFormSchema = z.object({
   cafeId: z.string().min(1, "Cafe is required"),
@@ -138,7 +140,6 @@ export function ImportStudent() {
           setCafeValue(null)
           form.reset()
           resetSelectionRef.current()
-          toast.success("Direct transaction created")
         },
       }
     )
@@ -359,6 +360,36 @@ export function ImportStudent() {
     XLSX.writeFile(wb, `Resolve-${selectedSheet}.xlsx`)
   }
 
+  const updateFromExcel = useUpdateFromExcel()
+  const acceptResolve = (
+    selectedData: StudentUploadComparison[],
+    method: "uploaded" | "existing"
+  ) => {
+    if (!method) {
+      return
+    }
+
+    const rows = selectedData.map((s) => ({
+      Name: s[method]!.name,
+      MatricNo: s[method]!.matric_no,
+      IcNo: s[method]!.ic_no,
+    }))
+
+    const tempFile = createExcel(rows, "Accept uploaded")
+
+    const formData = new FormData()
+    formData.append("file", tempFile)
+
+    updateFromExcel.mutate(formData, {
+      onSuccess: () => {
+        if (file) processFile(file)
+
+        setSelectedStudents([])
+        resetSelectionRef.current()
+      },
+    })
+  }
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -502,18 +533,32 @@ export function ImportStudent() {
                 placeholder="Search for Name"
                 selectionActions={(selected, resetSelection) => {
                   resetSelectionRef.current = resetSelection
+
                   return (
-                    <Button
-                      variant={"secondary"}
-                      disabled={!fundId}
-                      onClick={() => {
-                        setSelectedStudents(selected)
-                        setSheetOpen(true)
-                      }}
-                    >
-                      <CirclePlus />
-                      Create {selected.length} transactions
-                    </Button>
+                    <>
+                      <Button
+                        variant={"secondary"}
+                        disabled={!fundId}
+                        onClick={() => {
+                          setSelectedStudents(selected)
+                          setSheetOpen(true)
+                        }}
+                      >
+                        <CirclePlus />
+                        Create {selected.length} transactions
+                      </Button>
+
+                      <Button
+                        variant={"secondary"}
+                        onClick={() => {
+                          setSelectedStudents(selected)
+                          acceptResolve(selected, "uploaded")
+                        }}
+                      >
+                        <CheckCheck />
+                        Accept {selected.length} uploaded
+                      </Button>
+                    </>
                   )
                 }}
               >
