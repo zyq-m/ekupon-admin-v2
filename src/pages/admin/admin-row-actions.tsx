@@ -6,11 +6,22 @@ import {
   ManageFundsDialog,
 } from "@/components/form/admin-form"
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
 import { useResendInvite, useSuspendAdmin } from "@/hooks/use-admin"
 import { useAuth } from "@/hooks/use-auth"
+import { Loader2 } from "lucide-react"
 import { useState } from "react"
 
 export function AdminRowActions({ admin }: { admin: AdminAccount }) {
@@ -21,6 +32,7 @@ export function AdminRowActions({ admin }: { admin: AdminAccount }) {
   const [permissionsOpen, setPermissionsOpen] = useState(false)
   const [fundsOpen, setFundsOpen] = useState(false)
   const [roleOpen, setRoleOpen] = useState(false)
+  const [reinviteOpen, setReinviteOpen] = useState(false)
 
   return (
     <>
@@ -39,10 +51,10 @@ export function AdminRowActions({ admin }: { admin: AdminAccount }) {
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => resend.mutate(admin.email)}
+              onClick={() => setReinviteOpen(true)}
               disabled={resend.isPending}
             >
-              Resend invite
+              Reinvite admin
             </DropdownMenuItem>
           </>
         )}
@@ -80,6 +92,41 @@ export function AdminRowActions({ admin }: { admin: AdminAccount }) {
           onOpenChange={setRoleOpen}
           isSelf={self}
         />
+      )}
+      {reinviteOpen && (
+        <AlertDialog open={reinviteOpen} onOpenChange={setReinviteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Reinvite admin</AlertDialogTitle>
+              <AlertDialogDescription>
+                Send a new invitation link to {admin.email}? Any previous
+                invitation link will stop working.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={resend.isPending}>
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction
+                disabled={resend.isPending}
+                onClick={(event) => {
+                  event.preventDefault()
+                  resend.mutate(admin.email, {
+                    onSuccess: () => setReinviteOpen(false),
+                  })
+                }}
+              >
+                {resend.isPending ? (
+                  <>
+                    <Loader2 className="animate-spin" /> Sending…
+                  </>
+                ) : (
+                  "Reinvite"
+                )}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       )}
     </>
   )
