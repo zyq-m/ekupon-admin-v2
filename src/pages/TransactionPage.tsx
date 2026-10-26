@@ -151,7 +151,7 @@ export function TransactionPage() {
               </Badge>
             )}
 
-          {data?.transactions && (
+          {data?.transactions?.length && (
             <TransactionReportTable data={data} tfPayload={tfPayload} />
           )}
         </div>

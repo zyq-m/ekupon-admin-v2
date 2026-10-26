@@ -1,11 +1,6 @@
 import api from "./client"
 
-export type RoleName =
-  | "SUPER_ADMIN"
-  | "ADMIN"
-  | "STAFF"
-  | "STUDENT"
-  | "CAFE"
+export type RoleName = "SUPER_ADMIN" | "ADMIN" | "STAFF" | "STUDENT" | "CAFE"
 
 export type PermissionKey =
   | "can_manage_staff"
@@ -61,6 +56,14 @@ export type SetPasswordResponse = {
   message: string
 }
 
+export type ForgotPasswordReqBody = {
+  email: string
+}
+
+export type ForgotPasswordResponse = {
+  message: string
+}
+
 // ========== suspend user ==========
 export type SuspendUserBody = {
   id: number
@@ -81,10 +84,22 @@ export const authAPI = {
       .post<SetPasswordResponse>("/auth/set-password", body)
       .then((res) => res.data),
 
+  resetPassword: (body: SetPasswordReqBody) =>
+    api
+      .post<SetPasswordResponse>("/auth/reset-password", body)
+      .then((res) => res.data),
+
+  forgotPassword: (body: ForgotPasswordReqBody) =>
+    api
+      .post<ForgotPasswordResponse>("/auth/forgot-password", body)
+      .then((res) => res.data),
+
   getProfile: () =>
     api.get<UserProfile>("/auth/profile").then((res) => res.data),
 
   // Suspend (or activate) a user
   suspendUser: (body: SuspendUserBody) =>
-    api.post<SuspendUserResponse>("/auth/suspend", body).then((res) => res.data),
+    api
+      .post<SuspendUserResponse>("/auth/suspend", body)
+      .then((res) => res.data),
 }

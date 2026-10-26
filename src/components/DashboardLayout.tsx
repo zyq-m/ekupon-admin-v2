@@ -7,7 +7,6 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
-import { Toaster } from "@/components/ui/sonner"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { useAuth, useLogout } from "@/hooks/use-auth"
 import { useBuildChecker } from "@/hooks/use-build-checker"
@@ -97,7 +96,6 @@ function AuthenticatedLayout() {
             <TooltipProvider>
               <Outlet />
             </TooltipProvider>
-            <Toaster richColors position="top-right" />
           </div>
         </main>
       </SidebarInset>

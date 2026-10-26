@@ -1,6 +1,7 @@
 import { authAPI } from "@/api/auth"
 import { AuthContext, type AuthContextValue } from "@/context/auth-context"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import type { AxiosError } from "axios"
 import { useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
@@ -24,12 +25,28 @@ export function useLogin() {
       queryClient.clear()
       navigate("/ekupon-admin/dashboard")
     },
+
+    onError: (error: AxiosError<{ message: string }>) => {
+      toast.error(error.response?.data?.message || "Server error")
+    },
   })
 }
 
 export function useSetPassword() {
   return useMutation({
     mutationFn: authAPI.setPassword,
+  })
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: authAPI.resetPassword,
+  })
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: authAPI.forgotPassword,
   })
 }
 
