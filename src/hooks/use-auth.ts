@@ -27,6 +27,12 @@ export function useLogin() {
   })
 }
 
+export function useSetPassword() {
+  return useMutation({
+    mutationFn: authAPI.setPassword,
+  })
+}
+
 export function useLogout() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()

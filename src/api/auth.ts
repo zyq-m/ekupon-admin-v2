@@ -51,6 +51,16 @@ export type LoginReqBody = {
   password: string
 }
 
+export type SetPasswordReqBody = {
+  token: string
+  password: string
+  rePass: string
+}
+
+export type SetPasswordResponse = {
+  message: string
+}
+
 // ========== suspend user ==========
 export type SuspendUserBody = {
   id: number
@@ -65,6 +75,11 @@ export type SuspendUserResponse = {
 export const authAPI = {
   login: (loginBody: LoginReqBody) =>
     api.post<LoginResponse>("/auth/login", loginBody).then((res) => res.data),
+
+  setPassword: (body: SetPasswordReqBody) =>
+    api
+      .post<SetPasswordResponse>("/auth/set-password", body)
+      .then((res) => res.data),
 
   getProfile: () =>
     api.get<UserProfile>("/auth/profile").then((res) => res.data),
