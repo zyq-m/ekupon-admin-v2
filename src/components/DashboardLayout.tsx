@@ -23,6 +23,7 @@ const titleMap: Record<string, string> = {
   "/staff/import": "Import Staff",
   "/cafe": "Cafe Menu",
   "/transaction": "Transaction Records",
+  "/ekupon-admin/saga-cb": "SAGA CB Payments",
   "/coupon": "Coupon Management",
   "/admins": "Admin Management",
 }

@@ -2,6 +2,7 @@ import type { TfParams } from "@/api/transaction"
 import DataTable from "@/components/data-table"
 import { DateRangeFilter } from "@/components/date-range-filter"
 import { MetricCard } from "@/components/MetricCard"
+import { CreateSagaCbDialog } from "@/components/saga-cb/CreateSagaCbDialog"
 import { SelectFunds } from "@/components/select-funds"
 import { TableTooltipsBtn } from "@/components/table-tooltip-btn"
 import TransactionReportTable from "@/components/trans-report-table"
@@ -26,14 +27,17 @@ import {
   useVoidDirectedTf,
 } from "@/hooks/use-transaction"
 import { formatNumber, formatRM } from "@/lib/utils"
-import { BadgeDollarSign, Receipt, Search, Trash2 } from "lucide-react"
+import { BadgeDollarSign, Plus, Receipt, Search, Trash2 } from "lucide-react"
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { cafeTransactionCol } from "./cafe/columns"
 
 type Mode = "normal" | "directed"
 
 export function TransactionPage() {
   const [mode, setMode] = useState<Mode>("normal")
+  const [createCbOpen, setCreateCbOpen] = useState(false)
+  const navigate = useNavigate()
   const { can } = useAuth()
   const canManageBalance = can("can_manage_balance")
   const [tfPayload, setPayload] = useState<TfParams>({
@@ -156,6 +160,29 @@ export function TransactionPage() {
           )}
         </div>
       </DataTable>
+
+      {canManageBalance && data && (
+        <>
+          <div className="flex justify-end">
+            <Button
+              disabled={!data?.transactions}
+              onClick={() => setCreateCbOpen(true)}
+            >
+              <Plus />
+              Create CB Payment
+            </Button>
+          </div>
+          <CreateSagaCbDialog
+            {...tfPayload}
+            fundName={data.fund.name}
+            open={createCbOpen}
+            onOpenChange={setCreateCbOpen}
+            onGenerated={(batchId) =>
+              navigate(`/ekupon-admin/saga-cb?batch=${batchId}`)
+            }
+          />
+        </>
+      )}
     </div>
   )
 }

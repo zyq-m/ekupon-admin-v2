@@ -15,6 +15,7 @@ import { DashboardPage } from "@/pages/DashboardPage"
 import { LoginPage } from "@/pages/LoginPage"
 import { NotFound } from "@/pages/NotFound"
 import { ResetPasswordPage } from "@/pages/ResetPasswordPage"
+import { SagaCbPage } from "@/pages/saga-cb/SagaCbPage"
 import { SignUpPage } from "@/pages/SignUpPage"
 import { StudentPage } from "@/pages/student"
 import { ImportStudent } from "@/pages/student/ImportStudent"
@@ -30,7 +31,10 @@ import { Navigate, type RouteObject } from "react-router-dom"
 export const AppRoutes: RouteObject[] = [
   { path: "/ekupon-admin/login", element: <LoginPage /> },
   { path: "/ekupon-admin/sign-up/:token", element: <SignUpPage /> },
-  { path: "/ekupon-admin/reset-password/:token", element: <ResetPasswordPage /> },
+  {
+    path: "/ekupon-admin/reset-password/:token",
+    element: <ResetPasswordPage />,
+  },
   {
     path: "/ekupon-admin",
     element: <DashboardLayout />, // Sidebar layout
@@ -70,6 +74,14 @@ export const AppRoutes: RouteObject[] = [
         element: (
           <PermissionGuard permission="can_generate_report">
             <TransactionPage />
+          </PermissionGuard>
+        ),
+      },
+      {
+        path: "saga-cb",
+        element: (
+          <PermissionGuard permission="can_generate_report">
+            <SagaCbPage />
           </PermissionGuard>
         ),
       },
