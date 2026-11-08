@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu"
-import { useSuspendUser, useAuth } from "@/hooks/use-auth"
+import { useAuth, useSuspendUser } from "@/hooks/use-auth"
 import type { useUpdateCafe } from "@/hooks/use-cafe"
 import { cn, formatDate, formatNumber, formatRM } from "@/lib/utils"
 import type { ColumnDef } from "@tanstack/react-table"
@@ -200,7 +200,7 @@ export const cafeTransactionCol: ColumnDef<Transaction>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "cafe_name",
+    accessorKey: "company_name",
     header: ({ column }) => (
       <SortableHeader column={column} title="Company Name" />
     ),
@@ -275,9 +275,7 @@ export const transCol: ColumnDef<TfComplete>[] = [
   {
     id: "student_name",
     accessorFn: (row) => row.student?.name ?? row.staff?.name ?? "N/A",
-    header: ({ column }) => (
-      <SortableHeader column={column} title="Sender" />
-    ),
+    header: ({ column }) => <SortableHeader column={column} title="Sender" />,
   },
   {
     accessorKey: "amount",

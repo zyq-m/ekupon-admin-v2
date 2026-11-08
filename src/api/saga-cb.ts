@@ -20,6 +20,7 @@ export type SagaCbGenerateInput = {
   fundId: number
   from: string
   to: string
+  pic: string
 }
 
 export type SagaCbEvent = {

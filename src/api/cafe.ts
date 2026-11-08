@@ -80,9 +80,10 @@ export type Cafe = {
   no_tel: string | null
   bank: Bank
   bank_code: string
-  premise: string | null
+  premise: string
   registerNo: string | null
   start: Date | null
   end: Date | null
   total_earn: number
+  company_name: string
 }

@@ -12,6 +12,8 @@ import {
 import { Label } from "@/components/ui/label"
 import { useGenerateSagaCb } from "@/hooks/use-saga-cb"
 import { formatDate } from "@/lib/utils"
+import { useState } from "react"
+import { Input } from "../ui/input"
 
 type Props = TfParams & {
   open: boolean
@@ -30,6 +32,7 @@ export function CreateSagaCbDialog({
   fundName,
 }: Props) {
   const generate = useGenerateSagaCb()
+  const [email, setEmail] = useState("")
 
   const handleOpenChange = (next: boolean) => {
     onOpenChange(next)
@@ -41,7 +44,7 @@ export function CreateSagaCbDialog({
     if (fundId === null || !from || !to) return
 
     generate.mutate(
-      { fundId, from: from, to: to },
+      { fundId, from: from, to: to, pic: email },
       {
         onSuccess: (res) => {
           onGenerated?.(res.batch.id)
@@ -75,6 +78,17 @@ export function CreateSagaCbDialog({
                 {formatDate(from)} - {formatDate(to)}
               </p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pic">
+              PIC Email <span className="text-xs text-red-500">*</span>
+            </Label>
+            <Input
+              id="pic"
+              placeholder="pic@email.com"
+              onChange={(e) => setEmail(e.target.value)}
+            />
           </div>
 
           <p className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">

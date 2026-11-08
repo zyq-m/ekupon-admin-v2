@@ -93,20 +93,7 @@ export type DateRange = {
   to: string
 }
 
-export type Transaction = {
-  id: string
-  user_id: number
-  cafe_name: string
-  owner_name: string
-  account_no: string
-  no_tel: string
-  bank: { code: string; name: string }
-  bank_code: string
-  premise: string
-  registerNo: string | null
-  start: string // ISO Date string
-  end: string // ISO Date string
-  total_earn: number
+export type Transaction = Cafe & {
   totalTransaction: number
   totalAmount: number
 }
