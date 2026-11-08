@@ -77,7 +77,7 @@ export type Cafe = {
   cafe_name: string
   owner_name: string
   account_no: string
-  no_tel: string | null
+  no_tel: string
   bank: Bank
   bank_code: string
   premise: string
